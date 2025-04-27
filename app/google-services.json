@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "138783472253",
+    "project_id": "helbmobile1",
+    "storage_bucket": "helbmobile1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:138783472253:android:f56ff1b126b28cbffb8f14",
+        "android_client_info": {
+          "package_name": "com.example.helb_mobile1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA1Xz5NcEPDYPVyj8tN4_ci9dFCY62FMpI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
