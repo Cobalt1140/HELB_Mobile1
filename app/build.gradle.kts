@@ -49,6 +49,9 @@ secrets {
 
 dependencies {
 
+
+
+    implementation(libs.fragment)
     implementation(platform(libs.firebase.bom))
     implementation(libs.google.firebase.auth)
     implementation(libs.appcompat)
