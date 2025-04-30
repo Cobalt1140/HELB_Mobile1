@@ -49,8 +49,9 @@ secrets {
 
 dependencies {
 
-
-
+    implementation(libs.play.services.location)
+    implementation(libs.play.services.maps)
+    implementation(libs.android.volley)
     implementation(libs.fragment)
     implementation(platform(libs.firebase.bom))
     implementation(libs.google.firebase.auth)
@@ -60,5 +61,7 @@ dependencies {
     implementation(libs.constraintlayout)
     implementation(libs.firebase.auth)
     implementation(libs.firebase.database)
+    implementation(libs.lifecycle.viewmodel.android)
+
 
 }
