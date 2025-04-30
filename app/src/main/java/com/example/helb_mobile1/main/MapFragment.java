@@ -29,13 +29,12 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
 
-public class MapFragment extends Fragment implements OnMapReadyCallback {
+public class MapFragment extends Fragment implements OnMapReadyCallback, OnFragmentVisibleListener{
 
     private GoogleMap myMap;
     private final int FINE_PERMISSION_CODE = 1;
     Location currentLocation;
     FusedLocationProviderClient fusedLocationProviderClient;
-    private Button myButton;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -49,8 +48,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity());
         getLastLocation();
 
-        /*
-        myButton = findViewById(R.id.btn_mainMap);
+
+        Button myButton = view.findViewById(R.id.map_center_button);
         myButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -60,7 +59,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             }
         });
 
-         */
+
 
         return view;
     }
@@ -100,7 +99,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
                     SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
                     if (mapFragment != null) {
-                        mapFragment.getMapAsync(MapFragment.this::onMapReady);
+                        mapFragment.getMapAsync(MapFragment.this);
                     } else {
                         Toast.makeText(requireActivity(), "Map fragment is null!", Toast.LENGTH_SHORT).show();
                     }
@@ -140,4 +139,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
 
 
+    @Override
+    public void onFragmentVisible() {
+
+    }
 }

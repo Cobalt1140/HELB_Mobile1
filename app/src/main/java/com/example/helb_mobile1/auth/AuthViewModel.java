@@ -41,6 +41,7 @@ public class AuthViewModel extends ViewModel {
                         isLoggedIn.setValue(true);
                     } else {
                         authError.setValue(task.getException().getMessage());
+
                     }
                 });
     }

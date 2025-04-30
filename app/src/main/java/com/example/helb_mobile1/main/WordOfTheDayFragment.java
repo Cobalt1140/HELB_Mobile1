@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -21,7 +22,7 @@ import com.example.helb_mobile1.auth.AuthViewModel;
 import org.json.JSONException;
 
 
-public class WordOfTheDayFragment extends Fragment {
+public class WordOfTheDayFragment extends Fragment implements OnFragmentVisibleListener {
 
     WordOfTheDayViewModel wotdViewModel;
     TextView wordDisplay;
@@ -29,7 +30,7 @@ public class WordOfTheDayFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+
         View view = inflater.inflate(R.layout.fragment_word_of_the_day, container, false);
 
         PreferencesManager prefs = new PreferencesManager(requireActivity());
@@ -49,5 +50,12 @@ public class WordOfTheDayFragment extends Fragment {
                 wordDisplay.setText(word.substring(0,1).toUpperCase()+word.substring(1));
             }
         });
+    }
+
+
+
+    @Override
+    public void onFragmentVisible(){
+        wotdViewModel.fetchWordIfNeeded(requireActivity());
     }
 }

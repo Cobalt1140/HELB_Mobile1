@@ -24,12 +24,14 @@ import com.google.firebase.auth.FirebaseAuth;
 
 public class MainActivity extends AppCompatActivity {
 
-    BottomNavigationView bottomNavigationView;
+    private BottomNavigationView bottomNavigationView;
 
-    WordOfTheDayFragment wotdFragment = new WordOfTheDayFragment();
-    MapFragment mapFragment = new MapFragment();
-    LeaderboardFragment leaderboardFragment = new LeaderboardFragment();
-    AccountFragment accountFragment = new AccountFragment();
+    private WordOfTheDayFragment wotdFragment = new WordOfTheDayFragment();
+    private MapFragment mapFragment = new MapFragment();
+    private LeaderboardFragment leaderboardFragment = new LeaderboardFragment();
+    private AccountFragment accountFragment = new AccountFragment();
+    private Fragment activeFragment = wotdFragment;
+
 
 
     @Override
@@ -45,9 +47,24 @@ public class MainActivity extends AppCompatActivity {
 
         bottomNavigationView = findViewById(R.id.main_bottom_navigation);
 
-        if (savedInstanceState == null) { // Only add fragment first time
-            loadFragment(wotdFragment);
-        }
+        getSupportFragmentManager().beginTransaction()
+                .add(R.id.main_fragment_container, mapFragment, "2")
+                .hide(mapFragment)
+                .commit();
+
+        getSupportFragmentManager().beginTransaction()
+                .add(R.id.main_fragment_container, leaderboardFragment, "3")
+                .hide(leaderboardFragment)
+                .commit();
+
+        getSupportFragmentManager().beginTransaction()
+                .add(R.id.main_fragment_container, accountFragment, "4")
+                .hide(accountFragment)
+                .commit();
+
+        getSupportFragmentManager().beginTransaction()
+                .add(R.id.main_fragment_container,wotdFragment , "1")
+                .commit();
 
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
@@ -77,8 +94,12 @@ public class MainActivity extends AppCompatActivity {
 
     public void loadFragment(Fragment fragment) {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.main_fragment_container, fragment); // Replaces current fragment
+        transaction.hide(activeFragment);
+        transaction.show(fragment);
         //transaction.addToBackStack(null); // Optional: Adds fragment to back stack
         transaction.commit();
+        activeFragment = fragment;
+        ((OnFragmentVisibleListener) fragment).onFragmentVisible();
+
     }
 }

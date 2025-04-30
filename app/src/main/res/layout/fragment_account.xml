@@ -21,19 +21,10 @@
         android:id="@+id/Redirect_Settings_Button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="184dp"
-        android:layout_marginTop="30dp"
+        android:layout_marginStart="188dp"
+        android:layout_marginTop="32dp"
         android:text="Settings"
         app:layout_constraintStart_toEndOf="@+id/Account_Username_Text"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/temp_logOut"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="272dp"
-        android:layout_marginTop="43dp"
-        android:text="Log Out"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/Redirect_Settings_Button" />
 </androidx.constraintlayout.widget.ConstraintLayout>

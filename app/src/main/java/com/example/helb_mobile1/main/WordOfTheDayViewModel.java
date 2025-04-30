@@ -22,10 +22,12 @@ import java.time.ZonedDateTime;
 
 
 public class WordOfTheDayViewModel extends ViewModel {
+
     private final MutableLiveData<String> wordLiveData = new MutableLiveData<>();
     private final PreferencesManager prefs;
     private final ZonedDateTime NEW_WORD_TIME = ZonedDateTime.now(ZoneId.systemDefault()).withHour(8);
     private final ZoneId LOCATION = ZoneId.systemDefault();
+    private final String API_URL = "https://trouve-mot.fr/api/daily";
 
     public WordOfTheDayViewModel(PreferencesManager prefs){
         this.prefs = prefs;
@@ -64,7 +66,7 @@ public class WordOfTheDayViewModel extends ViewModel {
         Toast.makeText(context, "New Request", Toast.LENGTH_SHORT).show();
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
-                Request.Method.GET, "https://trouve-mot.fr/api/daily", null,
+                Request.Method.GET, API_URL, null,
                 response -> {
                     try {
                         prefs.saveDailyWord(response.getString("name"), System.currentTimeMillis());

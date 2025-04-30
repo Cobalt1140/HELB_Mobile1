@@ -10,7 +10,7 @@ import androidx.fragment.app.Fragment;
 import com.example.helb_mobile1.R;
 
 
-public class LeaderboardFragment extends Fragment {
+public class LeaderboardFragment extends Fragment implements OnFragmentVisibleListener{
 
 
 
@@ -19,5 +19,10 @@ public class LeaderboardFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_leaderboard, container, false);
+    }
+
+    @Override
+    public void onFragmentVisible() {
+
     }
 }
