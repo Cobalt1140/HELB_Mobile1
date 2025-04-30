@@ -3,6 +3,7 @@ package com.example.helb_mobile1.auth;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -18,13 +19,19 @@ public class SplashActivity extends AppCompatActivity {
 
 
         //Get Firebase User with AuthManager
-        if (AuthManager.getInstance().isLoggedIn() != null) {
+        if (AuthManager.getInstance().isLoggedIn()) {
             // User already logged in
-            startActivity(new Intent(this, MainActivity.class));
+            Log.d("SplashCheck", "User is still logged in: " + AuthManager.getInstance().getCurrentUser().getEmail());
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
         } else {
+
             // Not logged in, go to Auth screen
-            startActivity(new Intent(this, AuthActivity.class));
-        }
+            Log.d("SplashCheck", "User is logged out");
+            Intent intent = new Intent(this, AuthActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);        }
         finish(); // Close Splash screen
     }
 }

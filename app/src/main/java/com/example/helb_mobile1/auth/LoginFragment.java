@@ -1,11 +1,16 @@
 package com.example.helb_mobile1.auth;
 
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.text.method.HideReturnsTransformationMethod;
+import android.text.method.PasswordTransformationMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -14,6 +19,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.helb_mobile1.R;
+import com.example.helb_mobile1.main.MainActivity;
 
 
 public class LoginFragment extends Fragment {
@@ -26,19 +32,25 @@ public class LoginFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_login, container, false);
 
+        //On Screen buttons and inputs
         emailInput = view.findViewById(R.id.Login_Email_Input);
         passwordInput = view.findViewById(R.id.Login_Password_Input);
         Button loginButton = view.findViewById(R.id.Login_Button);
         Button signupRedirectButton = view.findViewById(R.id.Switch_to_Register_Button);
+        CheckBox visiblePasswordBox = view.findViewById(R.id.Login_Visible_Password);
 
+        //ViewModel
         authViewModel = new ViewModelProvider(requireActivity()).get(AuthViewModel.class);
 
+
         observeViewModel();
+
 
         loginButton.setOnClickListener(v -> {
             String email = emailInput.getText().toString().strip();
             String password = passwordInput.getText().toString().strip();
             authViewModel.login(email, password);
+
         });
 
         signupRedirectButton.setOnClickListener(v -> {
@@ -49,17 +61,29 @@ public class LoginFragment extends Fragment {
             }
         });
 
+        visiblePasswordBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            //code from https://droidbyme.medium.com/show-hide-password-in-edittext-in-android-c4c3db44f734
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked){
+                    passwordInput.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+                } else {
+                    passwordInput.setTransformationMethod(PasswordTransformationMethod.getInstance());
+                }
+            }
+        });
+
         return view;
     }
 
-    private void observeViewModel() {
-        authViewModel.getIsLoading().observe(getViewLifecycleOwner(), isLoading -> {
-            if (isLoading) {
-                /*
-                startActivity(new Intent(getActivity(), MainActivity.class));
-                requireActivity().finish();
 
-                 */
+
+    private void observeViewModel() { //Deal with info changes in ViewModel, like loading spinner
+        authViewModel.getIsLoading().observe(getViewLifecycleOwner(), isLoading -> {
+            if (isLoading) { //TODO add loading spinner animation
+
+
+
             }
         });
 
@@ -69,6 +93,14 @@ public class LoginFragment extends Fragment {
                 Toast.makeText(getContext(), "Login Failed: " + error, Toast.LENGTH_SHORT).show();
 
 
+            }
+        });
+
+        authViewModel.getIsLoggedIn().observe(getViewLifecycleOwner(), isLoggedIn -> {
+            if (isLoggedIn){
+                Intent intent = new Intent(requireActivity(), MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
             }
         });
     }

@@ -44,8 +44,9 @@
         android:layout_marginStart="95dp"
         android:layout_marginTop="84dp"
         android:ems="10"
-        android:inputType="text"
-        android:text="Email"
+        android:inputType="textEmailAddress"
+        android:text=""
+        android:hint="Email"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView2" />
 
@@ -56,8 +57,9 @@
         android:layout_marginStart="100dp"
         android:layout_marginTop="55dp"
         android:ems="10"
-        android:inputType="text"
-        android:text="Password"
+        android:inputType="textPassword"
+        android:text=""
+        android:hint="Password"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/Register_Email_Input" />
 
@@ -70,4 +72,14 @@
         android:text="Already have an account?"
         app:layout_constraintBottom_toTopOf="@+id/Switch_to_Login_Button"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <CheckBox
+        android:id="@+id/Register_Visible_Password"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="161dp"
+        android:layout_marginTop="18dp"
+        android:text="Show Password?"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/Register_Password_Input" />
 </androidx.constraintlayout.widget.ConstraintLayout>

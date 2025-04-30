@@ -1,11 +1,16 @@
 package com.example.helb_mobile1.auth;
 
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.text.method.HideReturnsTransformationMethod;
+import android.text.method.PasswordTransformationMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -14,6 +19,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.helb_mobile1.R;
+import com.example.helb_mobile1.main.MainActivity;
 
 
 public class RegisterFragment extends Fragment {
@@ -30,6 +36,7 @@ public class RegisterFragment extends Fragment {
         passwordInput = view.findViewById(R.id.Register_Password_Input);
         Button registerButton = view.findViewById(R.id.Register_Button);
         Button loginRedirectButton = view.findViewById(R.id.Switch_to_Login_Button);
+        CheckBox visiblePasswordBox = view.findViewById(R.id.Register_Visible_Password);
 
         authViewModel = new ViewModelProvider(this).get(AuthViewModel.class);
 
@@ -48,17 +55,25 @@ public class RegisterFragment extends Fragment {
             }
         });
 
+
+        visiblePasswordBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked){
+                    passwordInput.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+                } else {
+                    passwordInput.setTransformationMethod(PasswordTransformationMethod.getInstance());
+                }
+            }
+        });
+
         return view;
     }
 
     private void observeViewModel() {
         authViewModel.getIsLoading().observe(getViewLifecycleOwner(), isLoading -> {
-            if (isLoading) {
-                /*
-                startActivity(new Intent(getActivity(), MainActivity.class));
-                requireActivity().finish();
+            if (isLoading) { //TODO add loading spinner animation
 
-                 */
             } else {
 
             }
@@ -75,7 +90,9 @@ public class RegisterFragment extends Fragment {
 
         authViewModel.getIsLoggedIn().observe(getViewLifecycleOwner(), isLoggedIn -> {
             if (isLoggedIn){
-
+                Intent intent = new Intent(requireActivity(), MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
             }
         });
     }
