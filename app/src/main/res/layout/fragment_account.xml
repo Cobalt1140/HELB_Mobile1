@@ -11,20 +11,19 @@
         android:id="@+id/Account_Username_Text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="29dp"
-        android:layout_marginTop="34dp"
+        android:layout_marginStart="40dp"
+        android:layout_marginTop="23dp"
         android:text="Username"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/Redirect_Settings_Button"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="188dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginEnd="24dp"
         android:text="Settings"
-        app:layout_constraintStart_toEndOf="@+id/Account_Username_Text"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintBaseline_toBaselineOf="@+id/Account_Username_Text"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
