@@ -11,8 +11,13 @@
     <TextView
         android:id="@+id/WOTD_Word_Text"
         android:layout_width="wrap_content"
-        android:layout_height="19dp"
+        android:layout_height="64dp"
         android:text="Word of the Day"
+        android:textAlignment="center"
+        android:textSize="24sp"
+
+        android:textStyle="bold"
+        android:typeface="normal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -22,9 +27,9 @@
         android:id="@+id/WOTD_Countdown"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="171dp"
-        android:layout_marginTop="140dp"
         android:text="Countdown"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/WOTD_Word_Text"
+        app:layout_constraintEnd_toEndOf="@+id/WOTD_Word_Text"
+        app:layout_constraintStart_toStartOf="@+id/WOTD_Word_Text"
         app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

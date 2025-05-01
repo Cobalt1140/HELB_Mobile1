@@ -1,4 +1,4 @@
-package com.example.helb_mobile1.main;
+package com.example.helb_mobile1;
 
 import android.content.Context;
 import android.content.SharedPreferences;

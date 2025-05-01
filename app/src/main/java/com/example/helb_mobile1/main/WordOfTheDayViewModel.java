@@ -12,6 +12,8 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.helb_mobile1.PreferencesManager;
+import com.example.helb_mobile1.TimeConfig;
 
 import org.json.JSONException;
 
@@ -25,7 +27,7 @@ public class WordOfTheDayViewModel extends ViewModel {
 
     private final MutableLiveData<String> wordLiveData = new MutableLiveData<>();
     private final PreferencesManager prefs;
-    private final ZonedDateTime NEW_WORD_TIME = ZonedDateTime.now(ZoneId.systemDefault()).withHour(8);
+    private final ZonedDateTime NEW_WORD_TIME = ZonedDateTime.now(ZoneId.systemDefault()).withHour(TimeConfig.NEW_WORD_TIME_HOUR);
     private final ZoneId LOCATION = ZoneId.systemDefault();
     private final String API_URL = "https://trouve-mot.fr/api/daily";
 

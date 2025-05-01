@@ -5,21 +5,13 @@ import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
+import com.example.helb_mobile1.PreferencesManager;
 import com.example.helb_mobile1.R;
-import com.example.helb_mobile1.auth.AuthViewModel;
-
-import org.json.JSONException;
 
 
 public class WordOfTheDayFragment extends Fragment implements OnFragmentVisibleListener {

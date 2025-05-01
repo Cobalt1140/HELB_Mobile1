@@ -1,7 +1,6 @@
-package com.example.helb_mobile1.auth;
+package com.example.helb_mobile1;
 
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;

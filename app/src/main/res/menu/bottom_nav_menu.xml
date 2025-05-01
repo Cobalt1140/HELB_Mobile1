@@ -2,7 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item android:id="@+id/word_of_the_day"
-        android:title="Word of the Day"
+        android:title="Daily Word"
         android:icon="@drawable/baseline_home_24"
         />
     <item android:id="@+id/map"

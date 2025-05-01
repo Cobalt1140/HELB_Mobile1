@@ -4,6 +4,8 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.example.helb_mobile1.AuthManager;
+
 public class AuthViewModel extends ViewModel {
 
     private final AuthManager authManager;

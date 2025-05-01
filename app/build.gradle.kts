@@ -62,6 +62,14 @@ dependencies {
     implementation(libs.firebase.auth)
     implementation(libs.firebase.database)
     implementation(libs.lifecycle.viewmodel.android)
+    implementation(libs.monitor)
+    implementation(libs.ext.junit)
+    testImplementation(libs.junit.junit)
+    androidTestImplementation(libs.testng)
+
+    testImplementation(libs.junit)
+    androidTestImplementation (libs.runner)
+    androidTestImplementation (libs.android.espresso.core)
 
 
 }

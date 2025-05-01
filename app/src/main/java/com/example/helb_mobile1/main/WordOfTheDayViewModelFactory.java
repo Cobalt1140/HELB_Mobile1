@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.example.helb_mobile1.PreferencesManager;
+
 public class WordOfTheDayViewModelFactory implements ViewModelProvider.Factory {
     private final PreferencesManager prefs;
 

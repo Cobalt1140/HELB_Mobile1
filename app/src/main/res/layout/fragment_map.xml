@@ -16,14 +16,17 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/map_center_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="48dp"
-        android:layout_marginBottom="100dp"
-        android:text="Center on User"
-        app:layout_constraintBottom_toBottomOf="@+id/map"
-        app:layout_constraintEnd_toEndOf="@+id/map" />
+        android:id="@+id/map_redirect_camera"
+        android:layout_width="79dp"
+        android:layout_height="78dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="60dp"
+        android:background="@drawable/baseline_camera_alt_24"
+        android:backgroundTint="#03A9F4"
+        android:backgroundTintMode="add"
+        app:iconTint="#003F51B5"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

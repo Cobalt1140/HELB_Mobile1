@@ -6,13 +6,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 
 import com.example.helb_mobile1.R;
-import com.example.helb_mobile1.auth.AuthActivity;
-import com.example.helb_mobile1.auth.AuthManager;
 
 
 public class AccountFragment extends Fragment implements OnFragmentVisibleListener{

@@ -1,5 +1,6 @@
 [versions]
 agp = "8.8.0"
+espressoCoreVersion = "3.0.2"
 firebaseBom = "33.13.0"
 fragmentVersion = "1.8.6"
 junit = "4.13.2"
@@ -11,12 +12,17 @@ activity = "1.10.1"
 constraintlayout = "2.2.1"
 playServicesLocation = "21.3.0"
 playServicesMaps = "19.2.0"
+runner = "1.0.2"
 secretsGradlePlugin = "2.0.1"
 firebaseDatabase = "21.0.0"
 volleyVersion = "1.2.1"
 lifecycleViewmodelAndroid = "2.8.7"
+junitJunit = "4.12"
+testng = "6.9.6"
+monitor = "1.7.2"
 
 [libraries]
+android-espresso-core = { module = "com.android.support.test.espresso:espresso-core", version.ref = "espressoCoreVersion" }
 android-volley = { module = "com.android.volley:volley", version.ref = "volleyVersion" }
 firebase-auth = { module = "com.google.firebase:firebase-auth" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
@@ -32,9 +38,13 @@ activity = { group = "androidx.activity", name = "activity", version.ref = "acti
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation" }
 play-services-maps = { module = "com.google.android.gms:play-services-maps", version.ref = "playServicesMaps" }
+runner = { module = "com.android.support.test:runner", version.ref = "runner" }
 secrets-gradle-plugin = { module = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin:secrets-gradle-plugin", version.ref = "secretsGradlePlugin" }
 firebase-database = { group = "com.google.firebase", name = "firebase-database", version.ref = "firebaseDatabase" }
 lifecycle-viewmodel-android = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-android", version.ref = "lifecycleViewmodelAndroid" }
+junit-junit = { group = "junit", name = "junit", version.ref = "junitJunit" }
+testng = { group = "org.testng", name = "testng", version.ref = "testng" }
+monitor = { group = "androidx.test", name = "monitor", version.ref = "monitor" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
