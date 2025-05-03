@@ -32,6 +32,7 @@ public class MapViewModel extends ViewModel {
     }
 
     private void checkTimeAndUpdateUI() {
+        //TODO tbh this code kinda sucks
         LocalTime now = LocalTime.now();
 
         this.isPublishingTime.setValue(now.isAfter(NEW_WORD_TIME) &&

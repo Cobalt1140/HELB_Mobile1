@@ -36,7 +36,7 @@ public class WordOfTheDayViewModel extends ViewModel {
     }
 
     public void fetchWordIfNeeded(Context context) {
-        String cachedWord = prefs.getWord();
+        String cachedWord = prefs.getCachedWord();
         ZonedDateTime now = ZonedDateTime.now(LOCATION);
         long lastFetchMillis = prefs.getLastFetchedWord();
 
@@ -52,7 +52,7 @@ public class WordOfTheDayViewModel extends ViewModel {
     }
 
     private void setWordFromPrefs(){
-        String word = prefs.getWord();
+        String word = prefs.getCachedWord();
         if (word != null) {
             wordLiveData.setValue(word);
         }
@@ -79,55 +79,8 @@ public class WordOfTheDayViewModel extends ViewModel {
                 },
                 error -> {
                     Log.e("Volley", "Error: " + error.getMessage());
-
                 }
         );
-
         queue.add(jsonObjectRequest);
     }
-
-
-    /*TODO change all this so it doesn't stink of chatgpt
-    this is optional, I don't need to do this but it'd be nice
-
-     */
-    /*
-    public long getMillisUntilNext8AM() {
-        ZoneId zoneId = ZoneId.systemDefault();
-        ZonedDateTime now = ZonedDateTime.now(zoneId);
-
-        // Set today at 8 AM
-        ZonedDateTime next8AM = now.withHour(8).withMinute(0).withSecond(0).withNano(0);
-
-        // If it's already past 8 AM today, schedule for tomorrow
-        if (now.isAfter(next8AM)) {
-            next8AM = next8AM.plusDays(1);
-        }
-
-        return Duration.between(now, next8AM).toMillis();
-    }
-
-    public void startCountdownTo8AM() {
-        long millisUntil8AM = getMillisUntilNext8AM();
-
-        new CountDownTimer(millisUntil8AM, 1000) { // tick every second
-            public void onTick(long millisUntilFinished) {
-                long hours = TimeUnit.MILLISECONDS.toHours(millisUntilFinished);
-                long minutes = TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished) % 60;
-                long seconds = TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished) % 60;
-
-                Log.d("Countdown", hours + "h " + minutes + "m " + seconds + "s");
-                // You can also update a TextView here
-            }
-
-            public void onFinish() {
-                Log.d("Countdown", "It's 8 AM!");
-                // Trigger fetch or whatever action you need
-            }
-        }.start();
-    }
-
-     */
-
-
 }

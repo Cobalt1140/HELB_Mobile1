@@ -1,10 +1,17 @@
 package com.example.helb_mobile1.auth;
 
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.helb_mobile1.AuthManager;
+import com.example.helb_mobile1.DatabaseManager;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 
 public class AuthViewModel extends ViewModel {
 
@@ -15,7 +22,7 @@ public class AuthViewModel extends ViewModel {
 
     public AuthViewModel() {
         authManager = AuthManager.getInstance();
-        checkLoginStatus();
+        isLoggedIn.setValue(authManager.isLoggedIn());
     }
 
     public LiveData<Boolean> getIsLoading() {
@@ -30,9 +37,6 @@ public class AuthViewModel extends ViewModel {
         return isLoggedIn;
     }
 
-    private void checkLoginStatus() {
-        isLoggedIn.setValue(authManager.isLoggedIn());
-    }
 
     public void login(String email, String password) {
         isLoading.setValue(true);
@@ -48,16 +52,44 @@ public class AuthViewModel extends ViewModel {
                 });
     }
 
-    public void register(String email, String password) {
+    public void register(String email, String password, String username) {
+        //TODO check if user already exists and if username is already taken
         isLoading.setValue(true);
-        authManager.registerUser(email, password)
-                .addOnCompleteListener(task -> {
+
+        //I think I should add some logic here to call DatabaseManager to handle a used username before
+        //calling mAuth.registerUser()
+        DatabaseManager.getInstance().isUsernameTaken(username, new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                authError.setValue("Entered onDataChange");
+                if (snapshot.exists()){
+                    authError.setValue("Username is already taken!");
                     isLoading.setValue(false);
-                    if (task.isSuccessful()) {
-                        isLoggedIn.setValue(true);
-                    } else {
-                        authError.setValue(task.getException().getMessage());
-                    }
-                });
+                } else {
+                    authError.setValue("REGISTERING USER");
+                    authManager.registerUser(email, password)
+                            .addOnCompleteListener(task -> {
+                                if (task.isSuccessful()) {
+                                    DatabaseManager.getInstance().createUserProfile(AuthManager.getInstance().getCurrentUid(),username);
+                                    isLoading.setValue(false);
+                                    isLoggedIn.setValue(true);
+                                } else {
+                                    authError.setValue(task.getException().getMessage());
+                                    isLoading.setValue(false);
+                                }
+                            });
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                authError.setValue("Error checking username with database: "+error.getMessage());
+                isLoading.setValue(false);
+            }
+        });
+        isLoading.setValue(false);
+
     }
+
+
 }

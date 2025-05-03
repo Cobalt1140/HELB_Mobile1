@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
         //transaction.addToBackStack(null); // Optional: Adds fragment to back stack
         transaction.commit();
         activeFragment = fragment;
-        ((OnFragmentVisibleListener) fragment).onFragmentVisible();
+        ((IOnFragmentVisibleListener) fragment).onFragmentVisible();
 
     }
 }

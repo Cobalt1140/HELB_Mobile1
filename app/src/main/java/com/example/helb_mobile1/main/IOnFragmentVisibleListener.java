@@ -1,5 +1,5 @@
 package com.example.helb_mobile1.main;
 
-public interface OnFragmentVisibleListener {
+public interface IOnFragmentVisibleListener {
     void onFragmentVisible();
 }

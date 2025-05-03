@@ -32,9 +32,17 @@ public class AuthManager {
         }
     }
 
+    public String getCurrentUid(){
+        if (isLoggedIn()){
+            return getCurrentUser().getUid();
+        } else {
+            return null;
+        }
+    }
+
     public void deleteUserAccount(){
         if (isLoggedIn()){
-            mAuth.getCurrentUser().delete();
+            getCurrentUser().delete();
         }
     }
 
@@ -43,6 +51,7 @@ public class AuthManager {
     }
 
     public Task<AuthResult> registerUser(String email, String password){
+        //TODO check if user already exists and if username is already taken
         return mAuth.createUserWithEmailAndPassword(email, password);
     }
 

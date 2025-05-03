@@ -12,7 +12,7 @@ import androidx.fragment.app.Fragment;
 import com.example.helb_mobile1.R;
 
 
-public class AccountFragment extends Fragment implements OnFragmentVisibleListener{
+public class AccountFragment extends Fragment implements IOnFragmentVisibleListener {
 
 
 

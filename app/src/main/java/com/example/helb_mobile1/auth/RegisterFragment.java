@@ -24,7 +24,7 @@ import com.example.helb_mobile1.main.MainActivity;
 
 public class RegisterFragment extends Fragment {
 
-    private EditText emailInput, passwordInput;
+
     private AuthViewModel authViewModel;
 
     @Nullable
@@ -32,8 +32,9 @@ public class RegisterFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_register, container, false);
 
-        emailInput = view.findViewById(R.id.Register_Email_Input);
-        passwordInput = view.findViewById(R.id.Register_Password_Input);
+        EditText emailInput = view.findViewById(R.id.Register_Email_Input);
+        EditText passwordInput = view.findViewById(R.id.Register_Password_Input);
+        EditText usernameInput = view.findViewById(R.id.Register_Username_Input);
         Button registerButton = view.findViewById(R.id.Register_Button);
         Button loginRedirectButton = view.findViewById(R.id.Switch_to_Login_Button);
         CheckBox visiblePasswordBox = view.findViewById(R.id.Register_Visible_Password);
@@ -45,7 +46,8 @@ public class RegisterFragment extends Fragment {
         registerButton.setOnClickListener(v -> {
             String email = emailInput.getText().toString();
             String password = passwordInput.getText().toString();
-            authViewModel.register(email, password);
+            String username = usernameInput.getText().toString().strip();
+            authViewModel.register(email, password, username);
         });
 
         loginRedirectButton.setOnClickListener(v -> {

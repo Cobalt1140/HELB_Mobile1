@@ -20,17 +20,15 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.helb_mobile1.R;
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.tasks.CancellationToken;
 import com.google.android.gms.tasks.CancellationTokenSource;
 
 
-public class MapFragment extends Fragment implements OnMapReadyCallback, OnFragmentVisibleListener{
+public class MapFragment extends Fragment implements OnMapReadyCallback, IOnFragmentVisibleListener {
     /*
     TODO
     add out of bounds checks, hide and show the camera button when appropriate,

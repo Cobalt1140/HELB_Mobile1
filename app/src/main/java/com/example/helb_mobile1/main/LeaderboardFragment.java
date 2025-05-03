@@ -10,7 +10,7 @@ import androidx.fragment.app.Fragment;
 import com.example.helb_mobile1.R;
 
 
-public class LeaderboardFragment extends Fragment implements OnFragmentVisibleListener{
+public class LeaderboardFragment extends Fragment implements IOnFragmentVisibleListener {
 
 
 

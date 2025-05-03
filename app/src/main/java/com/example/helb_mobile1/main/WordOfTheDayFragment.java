@@ -14,7 +14,7 @@ import com.example.helb_mobile1.PreferencesManager;
 import com.example.helb_mobile1.R;
 
 
-public class WordOfTheDayFragment extends Fragment implements OnFragmentVisibleListener {
+public class WordOfTheDayFragment extends Fragment implements IOnFragmentVisibleListener {
 
     WordOfTheDayViewModel wotdViewModel;
     TextView wordDisplay;

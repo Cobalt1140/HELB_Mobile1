@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +21,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.helb_mobile1.R;
 import com.example.helb_mobile1.main.MainActivity;
+import com.google.firebase.database.FirebaseDatabase;
 
 
 public class LoginFragment extends Fragment {
@@ -44,6 +46,7 @@ public class LoginFragment extends Fragment {
 
 
         observeViewModel();
+
 
 
         loginButton.setOnClickListener(v -> {

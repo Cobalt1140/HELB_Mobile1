@@ -48,7 +48,7 @@ secrets {
 }
 
 dependencies {
-
+    implementation(libs.firebase.database.v2030)
     implementation(libs.play.services.location)
     implementation(libs.play.services.maps)
     implementation(libs.android.volley)
