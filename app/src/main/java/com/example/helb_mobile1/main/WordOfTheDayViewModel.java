@@ -22,14 +22,13 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
-
 public class WordOfTheDayViewModel extends ViewModel {
 
     private final MutableLiveData<String> wordLiveData = new MutableLiveData<>();
-    private final PreferencesManager prefs;
     private final ZonedDateTime NEW_WORD_TIME = ZonedDateTime.now(ZoneId.systemDefault()).withHour(TimeConfig.NEW_WORD_TIME_HOUR);
     private final ZoneId LOCATION = ZoneId.systemDefault();
     private final String API_URL = "https://trouve-mot.fr/api/daily";
+    private final PreferencesManager prefs;
 
     public WordOfTheDayViewModel(PreferencesManager prefs){
         this.prefs = prefs;
@@ -38,7 +37,8 @@ public class WordOfTheDayViewModel extends ViewModel {
     public void fetchWordIfNeeded(Context context) {
         String cachedWord = prefs.getCachedWord();
         ZonedDateTime now = ZonedDateTime.now(LOCATION);
-        long lastFetchMillis = prefs.getLastFetchedWord();
+        long lastFetchMillis = prefs.getLastTimeFetchedCachedWord();
+        //TODO change how looking at the timing works
 
         if (cachedWord == null || cachedWord.isEmpty()) { //if prefs don't have anything
             fetchWordAndSetPref(context);
@@ -63,7 +63,9 @@ public class WordOfTheDayViewModel extends ViewModel {
     }
 
     private void fetchWordAndSetPref(Context context){
-// Volley request to fetch and set value
+        //TODO change fetch to DB
+        //change the logic from system time
+
         RequestQueue queue = Volley.newRequestQueue(context);
         Toast.makeText(context, "New Request", Toast.LENGTH_SHORT).show();
 

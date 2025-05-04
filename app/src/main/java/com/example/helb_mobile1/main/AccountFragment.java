@@ -31,7 +31,6 @@ public class AccountFragment extends Fragment implements IOnFragmentVisibleListe
                 startActivity(intent);
             }
         });
-
         return view;
     }
 

@@ -1,7 +1,5 @@
 package com.example.helb_mobile1.auth;
 
-import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -58,15 +56,14 @@ public class AuthViewModel extends ViewModel {
 
         //I think I should add some logic here to call DatabaseManager to handle a used username before
         //calling mAuth.registerUser()
-        DatabaseManager.getInstance().isUsernameTaken(username, new ValueEventListener() {
+        DatabaseManager.getInstance().handleIsUsernameTaken(username, new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                authError.setValue("Entered onDataChange");
+
                 if (snapshot.exists()){
                     authError.setValue("Username is already taken!");
                     isLoading.setValue(false);
                 } else {
-                    authError.setValue("REGISTERING USER");
                     authManager.registerUser(email, password)
                             .addOnCompleteListener(task -> {
                                 if (task.isSuccessful()) {

@@ -29,12 +29,14 @@ public class DatabaseManager {
     DB Structure
     - userProfiles
         - <uid>
-            - username
-            - pointTotal
+            - username <String>
+            - pointTotal <int>
+            - dailyPoints
+                - <date> : <int>
 
     - dailyWords
         - <date>
-            - word
+            - word <String
             - markerList
                 - <uid>
                     - lat
@@ -65,7 +67,7 @@ public class DatabaseManager {
         userRef.setValue(userData);
     }
 
-    public void isUsernameTaken(String usernameToCheck, ValueEventListener listener) {
+    public void handleIsUsernameTaken(String usernameToCheck, ValueEventListener listener) {
         DatabaseReference usersRef = db.getReference(DB_USER_PROFILE);
         usersRef.orderByChild(DB_USERNAME)
                 .equalTo(usernameToCheck)
