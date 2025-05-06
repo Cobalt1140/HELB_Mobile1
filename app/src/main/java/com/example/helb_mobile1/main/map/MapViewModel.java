@@ -1,6 +1,8 @@
 package com.example.helb_mobile1.main.map;
 
-import android.location.Location;
+import android.content.Context;
+import android.provider.ContactsContract;
+import android.widget.Toast;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -9,6 +11,8 @@ import androidx.lifecycle.ViewModel;
 import com.example.helb_mobile1.AuthManager;
 import com.example.helb_mobile1.DatabaseManager;
 import com.example.helb_mobile1.IMarkerListCallback;
+import com.example.helb_mobile1.ISubmitMarkerCallback;
+import com.example.helb_mobile1.PreferencesManager;
 import com.example.helb_mobile1.TimeConfig;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
@@ -32,19 +36,34 @@ public class MapViewModel extends ViewModel {
     private final MutableLiveData<Boolean> isResultsTime = new MutableLiveData<>();
     private final MutableLiveData<MarkerOptions> personalMarker = new MutableLiveData<>();
     private final MutableLiveData<List<MarkerOptions>> markers = new MutableLiveData<>(new ArrayList<>());
+    private final MutableLiveData<String> notifLiveData = new MutableLiveData<>();
+    private final PreferencesManager prefs;
 
-    public MapViewModel() {
-        checkTime();
+    public MapViewModel(Context context) {
+        this.prefs = PreferencesManager.getInstance(context.getApplicationContext());
+        checkTimeAndHandleResults();
     }
 
-    private void checkTime() {
+    public void checkTimeAndHandleResults() {
         //TODO tbh this code kinda sucks
         LocalTime now = LocalTime.now();
 
         this.isPublishingTime.setValue(now.isAfter(NEW_WORD_TIME) &&
                 now.isBefore(LOCATION_PUBLISH_TIME));
         this.isResultsTime.setValue(now.isBefore(NEW_WORD_TIME) || now.isAfter(LOCATION_PUBLISH_TIME));
+        if (Boolean.TRUE.equals(isResultsTime.getValue())){
+            prefs.resetPersonalMarkerInCache();
+            loadMarkersFromDatabase();
+        } else if (Boolean.TRUE.equals(isPublishingTime.getValue())){
+            setPersonalMarkerFromPrefsIntoMap();
+        }
     }
+
+    public LiveData<String> getNotifLiveData (){
+        return notifLiveData;
+    }
+
+
 
 
 
@@ -56,9 +75,46 @@ public class MapViewModel extends ViewModel {
         return personalMarker;
     }
 
-    public void setPersonalMarkerFromPrefs(){
+    public void setPersonalMarker(double lat, double lng){ //For use with camera in fragment
+        if (Boolean.TRUE.equals(isPublishingTime.getValue())){
+            ZoneId zoneId = ZoneId.of("Europe/Brussels");
+            ZonedDateTime now = ZonedDateTime.now(zoneId);
+            String targetDate = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            DatabaseManager.getInstance().submitMarker(targetDate, AuthManager.getInstance().getCurrentUid(),
+                     lat,  lng, new ISubmitMarkerCallback() {
+                @Override
+                public void onError(String message) {
+                    notifLiveData.setValue("Error: "+message);
+                }
 
+                @Override
+                public void onSuccess() {
+                    notifLiveData.setValue("Marker submitted!");
+                    prefs.savePersonalMarkerInCache(lat,lng);
+                    setPersonalMarkerFromPrefsIntoMap();
+                }
+            });
+        } else {
+            notifLiveData.setValue("Please take a picture during submission time");
+        }
     }
+
+    private void setPersonalMarkerFromPrefsIntoMap(){
+        if (Boolean.TRUE.equals(isPublishingTime.getValue())){
+
+            if (prefs.getCachedPersonalMarkerLng() != (double)0.0 && prefs.getCachedPersonalMarkerLat()!= (double)0.0){
+                double lat = prefs.getCachedPersonalMarkerLat();
+                double lng = prefs.getCachedPersonalMarkerLng();
+                MarkerOptions markerOptions = new MarkerOptions()
+                        .position(new LatLng(lat, lng))
+                        .title("My Marker")
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+                personalMarker.setValue(markerOptions);
+            }
+        }
+    }
+
+
 
     private void loadMarkersFromDatabase() {
         ZoneId zoneId = ZoneId.of("Europe/Brussels");

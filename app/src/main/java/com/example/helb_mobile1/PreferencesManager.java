@@ -20,6 +20,7 @@ public class PreferencesManager {
         sharedPreferences = context.getApplicationContext().getSharedPreferences(PREF_FILE_NAME, Context.MODE_PRIVATE);
     }
 
+
     public static synchronized PreferencesManager getInstance(Context context) {
         if (instance == null) {
             instance = new PreferencesManager(context);
@@ -32,6 +33,32 @@ public class PreferencesManager {
         editor.putString(CACHED_WORD_NAME, word);
         editor.putLong(CACHED_WORD_TIMESTAMP, timestamp);
         editor.apply();
+    }
+
+    public void savePersonalMarkerInCache(Double lat, Double lng){
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        editor.putLong(CACHED_MARKER_LAT_NAME, Double.doubleToRawLongBits(lat));
+        editor.putLong(CACHED_MARKER_LNG_NAME, Double.doubleToRawLongBits(lng));
+        editor.apply();
+    }
+
+    public void resetPersonalMarkerInCache(){
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        editor.putLong(CACHED_MARKER_LAT_NAME, Double.doubleToRawLongBits(0));
+        editor.putLong(CACHED_MARKER_LNG_NAME, Double.doubleToRawLongBits(0));
+        editor.apply();
+    }
+
+    public double getCachedPersonalMarkerLat(){
+        return  Double.longBitsToDouble(sharedPreferences.getLong(CACHED_MARKER_LAT_NAME, Double.doubleToLongBits(0)));
+    }
+
+
+
+    public double getCachedPersonalMarkerLng(){
+        return Double.longBitsToDouble(sharedPreferences.getLong(CACHED_MARKER_LNG_NAME, Double.doubleToLongBits(0)));
     }
 
     public void saveUsernameInCache(String username){

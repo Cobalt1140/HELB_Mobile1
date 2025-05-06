@@ -21,8 +21,6 @@ public class DailyWordViewModel extends ViewModel {
 
     private final MutableLiveData<String> wordLiveData = new MutableLiveData<>();
     private final MutableLiveData<String> errorLiveData = new MutableLiveData<>();
-    private final ZoneId LOCATION = ZoneId.of("Europe/Brussels");
-    private final ZonedDateTime NEW_WORD_TIME = ZonedDateTime.now(LOCATION).withHour(TimeConfig.NEW_WORD_TIME_HOUR);
     private final PreferencesManager prefs;
 
     public DailyWordViewModel(Context context){
@@ -37,29 +35,31 @@ public class DailyWordViewModel extends ViewModel {
         return wordLiveData;
     }
 
+
+    public void fetchWordIfNeeded(Context context) {
+        //TODO redo this code, idk about zonedTime
+        String cachedWord = prefs.getCachedWord();
+        ZoneId Belgium = ZoneId.of("Europe/Brussels");
+        ZonedDateTime newWordTime = ZonedDateTime.now(Belgium).withHour(TimeConfig.NEW_WORD_TIME_HOUR);
+        ZonedDateTime now = ZonedDateTime.now(Belgium);
+        long lastFetchMillis = prefs.getCachedWordTimestamp();
+
+        if (cachedWord == null || cachedWord.isEmpty()) { //if prefs don't have anything
+            fetchWordAndSetPref(context);
+        } else if (now.isAfter(newWordTime)) { //if prefs have somt but it's new word time
+            ZonedDateTime lastFetchTime = Instant.ofEpochMilli(lastFetchMillis).atZone(Belgium);
+            if (lastFetchTime.isBefore(newWordTime)){ //last fetch was before new word Time
+                fetchWordAndSetPref(context);
+            }
+        }
+        setWordLiveDataFromPrefs();
+    }
+
     private void setWordLiveDataFromPrefs(){
         String word = prefs.getCachedWord();
         if (word != null) {
             wordLiveData.setValue(word);
         }
-    }
-
-
-    public void fetchWordIfNeeded(Context context) {
-        String cachedWord = prefs.getCachedWord();
-        ZonedDateTime now = ZonedDateTime.now(LOCATION);
-        long lastFetchMillis = prefs.getCachedWordTimestamp();
-
-
-        if (cachedWord == null || cachedWord.isEmpty()) { //if prefs don't have anything
-            fetchWordAndSetPref(context);
-        } else if (now.isAfter(NEW_WORD_TIME)) { //if prefs have somt but it's new word time
-            ZonedDateTime lastFetchTime = Instant.ofEpochMilli(lastFetchMillis).atZone(LOCATION);
-            if (lastFetchTime.isBefore(NEW_WORD_TIME)){ //last fetch was before new word Time
-                fetchWordAndSetPref(context);
-            }
-        }
-        setWordLiveDataFromPrefs();
     }
 
     private void fetchWordAndSetPref(Context context){

@@ -1,0 +1,32 @@
+package com.example.helb_mobile1.main;
+
+import android.content.Context;
+
+import androidx.annotation.NonNull;
+import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProvider;
+
+import com.example.helb_mobile1.main.dailyWord.DailyWordViewModel;
+import com.example.helb_mobile1.main.map.MapViewModel;
+
+public class AppViewModelFactory implements ViewModelProvider.Factory {
+
+    private final Context appContext;
+
+    public AppViewModelFactory(Context context) {
+        this.appContext = context.getApplicationContext(); // to avoid leaking Activity context
+    }
+
+    @NonNull
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
+        if (modelClass == MapViewModel.class) {
+            return (T) new MapViewModel(appContext);
+        } else if (modelClass == DailyWordViewModel.class) {
+            return (T) new DailyWordViewModel(appContext);
+        }
+        //TODO rest of my ViewModels
+        throw new IllegalArgumentException("Unknown ViewModel class: " + modelClass.getName());
+    }
+}

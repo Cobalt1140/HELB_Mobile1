@@ -89,7 +89,7 @@ public class DatabaseManager {
         handleIfWithinTimeWindow(TimeConfig.NEW_WORD_TIME_HOUR, TimeConfig.PUBLISH_TIME_HOUR, new ICurrentTimeCallback() {
             @Override
             public void onTimeCheckFailed(String message) {
-                callback.onError(message);
+                callback.onError("Problem checking time on server: "+message);
             }
 
             @Override
@@ -111,7 +111,7 @@ public class DatabaseManager {
 
             @Override
             public void onOutsideTimeWindow(int time) {
-                callback.onError("Outside of time window: "+time);
+                callback.onError("Outside of time window (8h-18h): "+time);
             }
         });
 

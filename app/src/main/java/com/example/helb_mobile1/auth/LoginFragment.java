@@ -54,9 +54,12 @@ public class LoginFragment extends Fragment {
 
 
         loginButton.setOnClickListener(v -> {
-            String email = emailInput.getText().toString().strip();
-            String password = passwordInput.getText().toString().strip();
-            authViewModel.login(email, password);
+            if (emailInput.getText().length()!=0 && passwordInput.getText().length()!=0){
+                String email = emailInput.getText().toString().strip();
+                String password = passwordInput.getText().toString().strip();
+                authViewModel.login(email, password);
+            }
+
 
         });
 

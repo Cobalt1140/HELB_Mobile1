@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +19,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.example.helb_mobile1.main.AppViewModelFactory;
 import com.example.helb_mobile1.R;
 import com.example.helb_mobile1.main.IOnFragmentVisibleListener;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -34,11 +36,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, IOnFrag
     /*
     TODO
     add out of bounds checks, hide and show the camera button when appropriate,
-    show daily markers once submissions are over, add a center on campus button, add zoom buttons.
+    show daily markers once submissions are over, add a center on campus button
      */
 
     private GoogleMap myMap;
-    FusedLocationProviderClient fusedLocationProviderClient;
+    private FusedLocationProviderClient fusedLocationProviderClient;
     private MapViewModel mapViewModel;
     private ActivityResultLauncher<String> locationPermissionLauncher;
     private ActivityResultLauncher<Intent> cameraActivityLauncher;
@@ -48,7 +50,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, IOnFrag
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_map, container, false);
 
-        mapViewModel = new ViewModelProvider(requireActivity()).get(MapViewModel.class);
+        AppViewModelFactory factory = new AppViewModelFactory(requireContext());
+        mapViewModel = new ViewModelProvider(this, factory).get(MapViewModel.class);
 
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity());
@@ -58,13 +61,37 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, IOnFrag
             mapFragment.getMapAsync(this);
         }
 
+
         Button cameraRedirectButton = view.findViewById(R.id.map_redirect_camera);
+        cameraActivityLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK ) {
+                        CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+                        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                            fusedLocationProviderClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, cancellationTokenSource.getToken())
+                                    .addOnSuccessListener(location -> {
+                                        if (location != null) {
+                                            //TODO add more checks to see if this is after submition time and whatnot
+                                            double lat = location.getLatitude();
+                                            double lng = location.getLongitude();
+                                            Toast.makeText(requireActivity(), "Lat:"+lat+" Lng:"+lng,Toast.LENGTH_SHORT).show();
+                                            myMap.clear();
+                                            mapViewModel.setPersonalMarker(lat,lng);
+                                        }
+                                    });
+                        }
+                    }
+                }
+        );
+
         cameraRedirectButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(requireActivity(), CameraActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                cameraActivityLauncher.launch(intent);
+                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                if (intent.resolveActivity(requireActivity().getPackageManager()) != null){
+                    cameraActivityLauncher.launch(intent);
+                }
             }
         });
 
@@ -88,26 +115,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, IOnFrag
     }
 
         /*
-        cameraActivityLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if (result.getResultCode() == Activity.RESULT_OK) {
 
-                        CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-                        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                            fusedLocationProviderClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, cancellationTokenSource.getToken())
-                                    .addOnSuccessListener(location -> {
-                                        if (location != null) {
-                                            mapViewModel.setLastPictureLocation(location);
-                                            Toast.makeText(requireActivity(),location.toString(), Toast.LENGTH_LONG).show();
-                                        }
-                                    });
-                        }
-                    }
-                }
-        );
          */
-    
+
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
         myMap = googleMap;
@@ -140,15 +150,18 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, IOnFrag
            }
         });
 
-
-
-
+        mapViewModel.getNotifLiveData().observe(getViewLifecycleOwner(), notif ->{
+            if (notif != null){
+                Toast.makeText(requireActivity(), notif, Toast.LENGTH_SHORT).show();
+            }
+        });
 
     }
 
     @Override
     public void onFragmentVisible() {
         checkLocationPermission();
+        mapViewModel.checkTimeAndHandleResults();
 
     }
 }

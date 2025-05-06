@@ -11,15 +11,15 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.helb_mobile1.PreferencesManager;
+import com.example.helb_mobile1.main.AppViewModelFactory;
 import com.example.helb_mobile1.R;
 import com.example.helb_mobile1.main.IOnFragmentVisibleListener;
 
 
 public class DailyWordFragment extends Fragment implements IOnFragmentVisibleListener {
 
-    DailyWordViewModel wotdViewModel;
-    TextView wordDisplay;
+    private DailyWordViewModel dailyWordViewModel;
+    private TextView wordDisplay;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -27,9 +27,9 @@ public class DailyWordFragment extends Fragment implements IOnFragmentVisibleLis
 
         View view = inflater.inflate(R.layout.fragment_word_of_the_day, container, false);
 
-        PreferencesManager prefs = PreferencesManager.getInstance(requireContext());
-        DailyWordViewModelFactory factory = new DailyWordViewModelFactory(requireContext());
-        wotdViewModel = new ViewModelProvider(this, factory).get(DailyWordViewModel.class);
+
+        AppViewModelFactory factory = new AppViewModelFactory(requireContext());
+        dailyWordViewModel = new ViewModelProvider(this, factory).get(DailyWordViewModel.class);
 
         wordDisplay = view.findViewById(R.id.WOTD_Word_Text);
 
@@ -38,14 +38,14 @@ public class DailyWordFragment extends Fragment implements IOnFragmentVisibleLis
     }
 
     private void observeViewModel(){
-        wotdViewModel.fetchWordIfNeeded(requireActivity());
-        wotdViewModel.getWordLiveData().observe(getViewLifecycleOwner(), word -> {
+        dailyWordViewModel.fetchWordIfNeeded(requireActivity());
+        dailyWordViewModel.getWordLiveData().observe(getViewLifecycleOwner(), word -> {
             if (word != null && wordDisplay != null){
                 wordDisplay.setText(word.substring(0,1).toUpperCase()+word.substring(1));
             }
         });
 
-        wotdViewModel.getErrorLiveData().observe(getViewLifecycleOwner(), error -> {
+        dailyWordViewModel.getErrorLiveData().observe(getViewLifecycleOwner(), error -> {
             if (error != null) {
 
                 Toast.makeText(getContext(),  error, Toast.LENGTH_SHORT).show();
@@ -57,6 +57,6 @@ public class DailyWordFragment extends Fragment implements IOnFragmentVisibleLis
 
     @Override
     public void onFragmentVisible(){
-        wotdViewModel.fetchWordIfNeeded(requireActivity());
+        dailyWordViewModel.fetchWordIfNeeded(requireActivity());
     }
 }

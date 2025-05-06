@@ -48,10 +48,14 @@ public class RegisterFragment extends Fragment {
         observeViewModel();
 
         registerButton.setOnClickListener(v -> {
-            String email = emailInput.getText().toString();
-            String password = passwordInput.getText().toString();
-            String username = usernameInput.getText().toString().strip();
-            authViewModel.register(email, password, username);
+            if (emailInput.getText().length()!=0 && passwordInput.getText().length()!=0 &&
+                    usernameInput.getText().length() != 0){
+                String email = emailInput.getText().toString().strip();
+                String password = passwordInput.getText().toString().strip();
+                String username = usernameInput.getText().toString().strip();
+                authViewModel.register(email, password, username);
+            }
+
         });
 
         loginRedirectButton.setOnClickListener(v -> {
