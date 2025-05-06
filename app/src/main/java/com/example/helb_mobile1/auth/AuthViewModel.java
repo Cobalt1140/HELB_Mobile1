@@ -42,6 +42,7 @@ public class AuthViewModel extends ViewModel {
                 .addOnCompleteListener(task -> {
                     isLoading.setValue(false);
                     if (task.isSuccessful()) {
+
                         isLoggedIn.setValue(true);
                     } else {
                         authError.setValue(task.getException().getMessage());
@@ -51,11 +52,8 @@ public class AuthViewModel extends ViewModel {
     }
 
     public void register(String email, String password, String username) {
-        //TODO check if user already exists and if username is already taken
         isLoading.setValue(true);
 
-        //I think I should add some logic here to call DatabaseManager to handle a used username before
-        //calling mAuth.registerUser()
         DatabaseManager.getInstance().handleIsUsernameTaken(username, new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -84,7 +82,7 @@ public class AuthViewModel extends ViewModel {
                 isLoading.setValue(false);
             }
         });
-        isLoading.setValue(false);
+
 
     }
 

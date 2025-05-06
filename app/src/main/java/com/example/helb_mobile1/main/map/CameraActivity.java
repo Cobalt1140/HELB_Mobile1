@@ -1,7 +1,5 @@
-package com.example.helb_mobile1.main;
+package com.example.helb_mobile1.main.map;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;

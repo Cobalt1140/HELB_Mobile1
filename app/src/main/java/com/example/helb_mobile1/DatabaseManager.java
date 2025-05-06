@@ -6,8 +6,10 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 
+import java.time.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,7 +38,7 @@ public class DatabaseManager {
 
     - dailyWords
         - <date>
-            - word <String
+            - word <String>
             - markerList
                 - <uid>
                     - lat
@@ -57,8 +59,6 @@ public class DatabaseManager {
     }
 
     public void createUserProfile(String uid, String username) {
-        //TODO check if user already exists and if username is already taken
-        //also figure out how to link this and AuthManager
         DatabaseReference userRef = db.getReference(DB_USER_PROFILE).child(uid);
 
         Map<String, Object> userData = new HashMap<>();
@@ -66,6 +66,7 @@ public class DatabaseManager {
         userData.put(DB_POINT_TOTAL, 0);
         userRef.setValue(userData);
     }
+    //TODO add a delete UserProfile function
 
     public void handleIsUsernameTaken(String usernameToCheck, ValueEventListener listener) {
         DatabaseReference usersRef = db.getReference(DB_USER_PROFILE);
@@ -84,18 +85,36 @@ public class DatabaseManager {
     }
      */
 
-    public void submitMarker(String date, String uid, double lat, double lng) {
-        DatabaseReference markerRef = db.getReference(DB_DAILY_WORDS)
-                .child(date)
-                .child(DB_MARKER_LIST)
-                .child(uid); // Use UID as the key
+    public void submitMarker(String date, String uid, double lat, double lng, ISubmitMarkerCallback callback) {
+        handleIfWithinTimeWindow(TimeConfig.NEW_WORD_TIME_HOUR, TimeConfig.PUBLISH_TIME_HOUR, new ICurrentTimeCallback() {
+            @Override
+            public void onTimeCheckFailed(String message) {
+                callback.onError(message);
+            }
 
-        Map<String, Object> markerData = new HashMap<>();
-        markerData.put(DB_MARKER_LAT, lat);
-        markerData.put(DB_MARKER_LNG, lng);
-        markerData.put(DB_MARKER_TIMESTAMP, System.currentTimeMillis());
+            @Override
+            public void onWithinTimeWindow() {
+                DatabaseReference markerRef = db.getReference(DB_DAILY_WORDS)
+                        .child(date)
+                        .child(DB_MARKER_LIST)
+                        .child(uid); // Use UID as the key
 
-        markerRef.setValue(markerData);
+                Map<String, Object> markerData = new HashMap<>();
+                markerData.put(DB_MARKER_LAT, lat);
+                markerData.put(DB_MARKER_LNG, lng);
+                markerData.put(DB_MARKER_TIMESTAMP, System.currentTimeMillis());
+
+                markerRef.setValue(markerData)
+                        .addOnSuccessListener(task -> callback.onSuccess())
+                        .addOnFailureListener(e -> callback.onError(e.getMessage()));
+            }
+
+            @Override
+            public void onOutsideTimeWindow(int time) {
+                callback.onError("Outside of time window: "+time);
+            }
+        });
+
     }
 
 
@@ -105,49 +124,103 @@ public class DatabaseManager {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 String username = snapshot.child(DB_USERNAME).getValue(String.class);
-                Long points = snapshot.child(DB_POINT_TOTAL).getValue(Long.class);
-                callback.onUserDataReceived(username, points != null ? points : 0);
+                long points = snapshot.child(DB_POINT_TOTAL).getValue(Long.class);
+                callback.onUserDataReceived(username, points);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                callback.onError(error);
+                callback.onError(error.getMessage());
             }
         });
     }
 
     public void fetchAndHandleMarkerList(String date, String targetUid, IMarkerListCallback callback){
-        DatabaseReference markersRef = db.getReference(DB_DAILY_WORDS).child(date)
-                .child(DB_MARKER_LIST);
-        markersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        handleIfWithinTimeWindow(TimeConfig.PUBLISH_TIME_HOUR, TimeConfig.NEW_WORD_TIME_HOUR, new ICurrentTimeCallback() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) { //snapshot is list of all markers
-                Map<String, Map<String, Object>> allMarkers = new HashMap<>();
-                for (DataSnapshot markerSnap : snapshot.getChildren()) { //foreach marker
-                    String uid = markerSnap.getKey();
-                    Map<String, Object> markerData = new HashMap<>();
-                    markerData.put(DB_MARKER_LAT, markerSnap.child(DB_MARKER_LAT).getValue(Double.class));
-                    markerData.put(DB_MARKER_LNG, markerSnap.child(DB_MARKER_LNG).getValue(Double.class));
-                    markerData.put(DB_MARKER_TIMESTAMP, markerSnap.child(DB_MARKER_TIMESTAMP).getValue(Long.class));
-                    allMarkers.put(uid, markerData);
+            public void onTimeCheckFailed(String message) {
+                callback.onError(message);
+            }
 
-                    if (uid != null && uid.equals(targetUid)) {
-                        callback.onUserMarkerFound(uid, markerData);
+            @Override
+            public void onWithinTimeWindow() {
+                DatabaseReference markersRef = db.getReference(DB_DAILY_WORDS).child(date)
+                        .child(DB_MARKER_LIST);
+                markersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) { //snapshot is list of all markers
+                        Map<String, Map<String, Object>> allMarkers = new HashMap<>();
+                        for (DataSnapshot markerSnap : snapshot.getChildren()) { //foreach marker
+                            String uid = markerSnap.getKey();
+                            Map<String, Object> markerData = new HashMap<>();
+                            markerData.put(DB_MARKER_LAT, markerSnap.child(DB_MARKER_LAT).getValue(Double.class));
+                            markerData.put(DB_MARKER_LNG, markerSnap.child(DB_MARKER_LNG).getValue(Double.class));
+                            markerData.put(DB_MARKER_TIMESTAMP, markerSnap.child(DB_MARKER_TIMESTAMP).getValue(Long.class));
+                            if (uid != null && uid.equals(targetUid)) {
+                                callback.onUserMarkerFound(uid, markerData);
+                            } else {
+                                allMarkers.put(uid, markerData);
+                            }
+                        }
+                        callback.onMarkersFetched(allMarkers);
                     }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        callback.onError(error.getMessage());
+                    }
+                });
+            }
+
+            @Override
+            public void onOutsideTimeWindow(int time) {
+                callback.onError("Outside time window: "+time);
+            }
+        });
+
+    }
+
+    private void handleIfWithinTimeWindow(int startHour, int endHour, ICurrentTimeCallback callback) {
+        DatabaseReference serverTimeRef = db.getReference("serverTime");
+
+        serverTimeRef.setValue(ServerValue.TIMESTAMP);
+        serverTimeRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Long utcMillis = snapshot.getValue(Long.class);
+                if (utcMillis == null) {
+                    callback.onTimeCheckFailed("Server time fetch failed");
+                    return;
                 }
-                //TODO depending on how I'm gonna manage the callbacks, I could move this method to be called for every marker instead of for all markers simultaneously
-                callback.onMarkersFetched(allMarkers);
+
+                ZonedDateTime belgianTime = Instant.ofEpochMilli(utcMillis)
+                        .atZone(ZoneId.of("Europe/Brussels"));
+
+                int currentHour = belgianTime.getHour();
+
+                boolean inWindow;
+                if (startHour < endHour) {
+                    inWindow = currentHour >= startHour && currentHour < endHour;
+                } else {
+                    inWindow = currentHour >= startHour || currentHour < endHour;
+                }
+
+                if (inWindow) {
+                    callback.onWithinTimeWindow();
+                } else {
+                    callback.onOutsideTimeWindow(currentHour);
+                }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                callback.onError(error);
+                callback.onTimeCheckFailed(error.getMessage());
             }
         });
     }
 
+
     public void fetchAndHandleDailyWord(String date, IDailyWordCallback callback){
-        //TODO update the way to fetch the daily word (from directly from the API to fetching it from the server)
         DatabaseReference wordRef = db.getReference(DB_DAILY_WORDS).child(date);
         wordRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -158,7 +231,7 @@ public class DatabaseManager {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                callback.onError(error);
+                callback.onError(error.getMessage());
             }
         });
 

@@ -18,6 +18,10 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.example.helb_mobile1.AuthManager;
+import com.example.helb_mobile1.DatabaseManager;
+import com.example.helb_mobile1.IUserDataCallback;
+import com.example.helb_mobile1.PreferencesManager;
 import com.example.helb_mobile1.R;
 import com.example.helb_mobile1.main.MainActivity;
 
@@ -92,9 +96,25 @@ public class RegisterFragment extends Fragment {
 
         authViewModel.getIsLoggedIn().observe(getViewLifecycleOwner(), isLoggedIn -> {
             if (isLoggedIn){
-                Intent intent = new Intent(requireActivity(), MainActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent);
+                DatabaseManager.getInstance().fetchAndHandleUserData(AuthManager.getInstance().getCurrentUid(), new IUserDataCallback() {
+                    @Override
+                    public void onUserDataReceived(String username, long points) {
+                        PreferencesManager prefs = PreferencesManager.getInstance(requireContext());
+                        prefs.saveUsernameInCache(username);
+                        prefs.savePointTotalInCache(points);
+                        Intent intent = new Intent(requireActivity(), MainActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(intent);
+                    }
+
+                    @Override
+                    public void onError(String error) {
+                        Toast.makeText(getContext(), "Error acquiring username and points: "+error, Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(requireActivity(), MainActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(intent);
+                    }
+                });
             }
         });
     }

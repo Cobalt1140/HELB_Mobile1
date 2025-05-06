@@ -22,8 +22,7 @@ public class AuthActivity extends AppCompatActivity {
 
     public void loadFragment(Fragment fragment) {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.auth_fragment_container, fragment); // Replaces current fragment
-        //transaction.addToBackStack(null); // Optional: Adds fragment to back stack
+        transaction.replace(R.id.auth_fragment_container, fragment);
         transaction.commit();
     }
 }

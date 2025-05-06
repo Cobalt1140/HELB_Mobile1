@@ -1,4 +1,4 @@
-package com.example.helb_mobile1.main;
+package com.example.helb_mobile1.main.dailyWord;
 
 import android.os.Bundle;
 
@@ -9,14 +9,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.helb_mobile1.PreferencesManager;
 import com.example.helb_mobile1.R;
+import com.example.helb_mobile1.main.IOnFragmentVisibleListener;
 
 
-public class WordOfTheDayFragment extends Fragment implements IOnFragmentVisibleListener {
+public class DailyWordFragment extends Fragment implements IOnFragmentVisibleListener {
 
-    WordOfTheDayViewModel wotdViewModel;
+    DailyWordViewModel wotdViewModel;
     TextView wordDisplay;
 
     @Override
@@ -25,9 +27,9 @@ public class WordOfTheDayFragment extends Fragment implements IOnFragmentVisible
 
         View view = inflater.inflate(R.layout.fragment_word_of_the_day, container, false);
 
-        PreferencesManager prefs = new PreferencesManager(requireActivity());
-        WordOfTheDayViewModelFactory factory = new WordOfTheDayViewModelFactory(prefs);
-        wotdViewModel = new ViewModelProvider(this, factory).get(WordOfTheDayViewModel.class);
+        PreferencesManager prefs = PreferencesManager.getInstance(requireContext());
+        DailyWordViewModelFactory factory = new DailyWordViewModelFactory(requireContext());
+        wotdViewModel = new ViewModelProvider(this, factory).get(DailyWordViewModel.class);
 
         wordDisplay = view.findViewById(R.id.WOTD_Word_Text);
 
@@ -42,9 +44,16 @@ public class WordOfTheDayFragment extends Fragment implements IOnFragmentVisible
                 wordDisplay.setText(word.substring(0,1).toUpperCase()+word.substring(1));
             }
         });
+
+        wotdViewModel.getErrorLiveData().observe(getViewLifecycleOwner(), error -> {
+            if (error != null) {
+
+                Toast.makeText(getContext(),  error, Toast.LENGTH_SHORT).show();
+
+
+            }
+        });
     }
-
-
 
     @Override
     public void onFragmentVisible(){

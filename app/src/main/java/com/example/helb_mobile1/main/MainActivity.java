@@ -13,6 +13,10 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.example.helb_mobile1.R;
+import com.example.helb_mobile1.main.account.AccountFragment;
+import com.example.helb_mobile1.main.dailyWord.DailyWordFragment;
+import com.example.helb_mobile1.main.leaderboard.LeaderboardFragment;
+import com.example.helb_mobile1.main.map.MapFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
@@ -20,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
 
     private BottomNavigationView bottomNavigationView;
 
-    private WordOfTheDayFragment wotdFragment = new WordOfTheDayFragment();
+    private DailyWordFragment wotdFragment = new DailyWordFragment();
     private MapFragment mapFragment = new MapFragment();
     private LeaderboardFragment leaderboardFragment = new LeaderboardFragment();
     private AccountFragment accountFragment = new AccountFragment();
@@ -90,7 +94,6 @@ public class MainActivity extends AppCompatActivity {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.hide(activeFragment);
         transaction.show(fragment);
-        //transaction.addToBackStack(null); // Optional: Adds fragment to back stack
         transaction.commit();
         activeFragment = fragment;
         ((IOnFragmentVisibleListener) fragment).onFragmentVisible();

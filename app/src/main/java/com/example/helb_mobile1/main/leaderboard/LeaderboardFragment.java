@@ -1,4 +1,4 @@
-package com.example.helb_mobile1.main;
+package com.example.helb_mobile1.main.leaderboard;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import androidx.fragment.app.Fragment;
 
 import com.example.helb_mobile1.R;
+import com.example.helb_mobile1.main.IOnFragmentVisibleListener;
 
 
 public class LeaderboardFragment extends Fragment implements IOnFragmentVisibleListener {

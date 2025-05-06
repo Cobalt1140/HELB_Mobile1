@@ -5,7 +5,7 @@
     android:id="@+id/WOTD_Constraint_Layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".main.WordOfTheDayFragment">
+    tools:context=".main.dailyWord.DailyWordFragment">
 
 
     <TextView

@@ -51,7 +51,6 @@ public class AuthManager {
     }
 
     public Task<AuthResult> registerUser(String email, String password){
-        //TODO check if user already exists and if username is already taken
         return mAuth.createUserWithEmailAndPassword(email, password);
     }
 

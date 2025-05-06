@@ -6,6 +6,6 @@ import java.util.Map;
 
 public interface IDailyWordCallback {
     void onDailyWordFound(String word);
-    void onError(DatabaseError error);
+    void onError(String error);
 
 }

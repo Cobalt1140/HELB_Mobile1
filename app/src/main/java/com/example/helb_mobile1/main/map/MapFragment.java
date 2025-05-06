@@ -1,4 +1,4 @@
-package com.example.helb_mobile1.main;
+package com.example.helb_mobile1.main.map;
 
 import android.Manifest;
 import android.app.Activity;
@@ -19,12 +19,14 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.helb_mobile1.R;
+import com.example.helb_mobile1.main.IOnFragmentVisibleListener;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.CancellationTokenSource;
 
 
@@ -56,27 +58,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, IOnFrag
             mapFragment.getMapAsync(this);
         }
 
-        cameraActivityLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if (result.getResultCode() == Activity.RESULT_OK) {
-
-                        CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-                        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                            fusedLocationProviderClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, cancellationTokenSource.getToken())
-                                    .addOnSuccessListener(location -> {
-                                        if (location != null) {
-                                            mapViewModel.setLastPictureLocation(location);
-                                            Toast.makeText(requireActivity(),location.toString(), Toast.LENGTH_LONG).show();
-                                        }
-                                    });
-                        }
-                    }
-                }
-        );
-
-
-
         Button cameraRedirectButton = view.findViewById(R.id.map_redirect_camera);
         cameraRedirectButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -106,23 +87,35 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, IOnFrag
         return view;
     }
 
+        /*
+        cameraActivityLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
 
-
+                        CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+                        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                            fusedLocationProviderClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, cancellationTokenSource.getToken())
+                                    .addOnSuccessListener(location -> {
+                                        if (location != null) {
+                                            mapViewModel.setLastPictureLocation(location);
+                                            Toast.makeText(requireActivity(),location.toString(), Toast.LENGTH_LONG).show();
+                                        }
+                                    });
+                        }
+                    }
+                }
+        );
+         */
+    
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
         myMap = googleMap;
-        /*
-        LatLng currentLatLng = new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude());
-        MarkerOptions markerOptions = new MarkerOptions().position(currentLatLng).title("My Location");
-        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
-        myMap.addMarker(markerOptions);
-        myMap.moveCamera(CameraUpdateFactory.newLatLng(currentLatLng));
-        */
-
 
         if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             myMap.setMyLocationEnabled(true);
         }
+        observeViewModel();
     }
 
     private void checkLocationPermission() {
@@ -132,7 +125,26 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, IOnFrag
         }
     }
 
+    private void observeViewModel(){
+        mapViewModel.getMarkersLiveData().observe(getViewLifecycleOwner(), markerOptions -> {
+            if (!markerOptions.isEmpty()){
+                myMap.clear();
+                for (MarkerOptions marker : markerOptions){
+                    myMap.addMarker(marker);
+                }
+            }
+        });
+        mapViewModel.getPersonalMarkerLiveData().observe(getViewLifecycleOwner(), marker -> {
+           if (marker != null){
+               myMap.addMarker(marker);
+           }
+        });
 
+
+
+
+
+    }
 
     @Override
     public void onFragmentVisible() {
