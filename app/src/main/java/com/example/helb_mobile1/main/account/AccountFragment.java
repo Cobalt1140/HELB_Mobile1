@@ -10,8 +10,8 @@ import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 
-import com.example.helb_mobile1.AuthManager;
-import com.example.helb_mobile1.PreferencesManager;
+import com.example.helb_mobile1.managers.AuthManager;
+import com.example.helb_mobile1.managers.PreferencesManager;
 import com.example.helb_mobile1.R;
 import com.example.helb_mobile1.auth.AuthActivity;
 import com.example.helb_mobile1.main.IOnFragmentVisibleListener;

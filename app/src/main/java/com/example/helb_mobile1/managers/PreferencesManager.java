@@ -1,4 +1,4 @@
-package com.example.helb_mobile1;
+package com.example.helb_mobile1.managers;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -14,7 +14,6 @@ public class PreferencesManager {
     private final SharedPreferences sharedPreferences;
 
     private static PreferencesManager instance;
-    //TODO add cached personal marker
 
     private PreferencesManager(Context context) {
         sharedPreferences = context.getApplicationContext().getSharedPreferences(PREF_FILE_NAME, Context.MODE_PRIVATE);

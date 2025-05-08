@@ -5,8 +5,8 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.example.helb_mobile1.AuthManager;
-import com.example.helb_mobile1.DatabaseManager;
+import com.example.helb_mobile1.managers.AuthManager;
+import com.example.helb_mobile1.managers.DatabaseManager;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;

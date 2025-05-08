@@ -32,4 +32,5 @@
         app:layout_constraintEnd_toEndOf="@+id/WOTD_Word_Text"
         app:layout_constraintStart_toStartOf="@+id/WOTD_Word_Text"
         app:layout_constraintTop_toTopOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,13 +18,12 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.example.helb_mobile1.AuthManager;
-import com.example.helb_mobile1.DatabaseManager;
-import com.example.helb_mobile1.IUserDataCallback;
-import com.example.helb_mobile1.PreferencesManager;
+import com.example.helb_mobile1.managers.AuthManager;
+import com.example.helb_mobile1.managers.DatabaseManager;
+import com.example.helb_mobile1.managers.db_callbacks.IUserDataCallback;
+import com.example.helb_mobile1.managers.PreferencesManager;
 import com.example.helb_mobile1.R;
 import com.example.helb_mobile1.main.MainActivity;
-import com.google.firebase.database.FirebaseDatabase;
 
 
 public class LoginFragment extends Fragment {
@@ -107,7 +105,7 @@ public class LoginFragment extends Fragment {
 
         authViewModel.getIsLoggedIn().observe(getViewLifecycleOwner(), isLoggedIn -> {
             if (isLoggedIn){
-               DatabaseManager.getInstance().fetchAndHandleUserData(AuthManager.getInstance().getCurrentUid(), new IUserDataCallback() {
+               DatabaseManager.getInstance().fetchAndHandleAccountData(AuthManager.getInstance().getCurrentUid(), new IUserDataCallback() {
                     @Override
                     public void onUserDataReceived(String username, long points) {
                         PreferencesManager prefs = PreferencesManager.getInstance(requireContext());

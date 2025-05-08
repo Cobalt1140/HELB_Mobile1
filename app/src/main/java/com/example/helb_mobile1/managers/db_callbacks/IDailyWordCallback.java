@@ -1,8 +1,4 @@
-package com.example.helb_mobile1;
-
-import com.google.firebase.database.DatabaseError;
-
-import java.util.Map;
+package com.example.helb_mobile1.managers.db_callbacks;
 
 public interface IDailyWordCallback {
     void onDailyWordFound(String word);

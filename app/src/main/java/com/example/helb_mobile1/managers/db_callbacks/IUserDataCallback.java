@@ -1,6 +1,4 @@
-package com.example.helb_mobile1;
-
-import com.google.firebase.database.DatabaseError;
+package com.example.helb_mobile1.managers.db_callbacks;
 
 public interface IUserDataCallback {
     void onUserDataReceived(String username, long points);

@@ -8,12 +8,15 @@ import androidx.lifecycle.ViewModelProvider;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.helb_mobile1.main.AppViewModelFactory;
 import com.example.helb_mobile1.R;
 import com.example.helb_mobile1.main.IOnFragmentVisibleListener;
+
+import org.w3c.dom.Text;
 
 
 public class DailyWordFragment extends Fragment implements IOnFragmentVisibleListener {
@@ -27,11 +30,15 @@ public class DailyWordFragment extends Fragment implements IOnFragmentVisibleLis
 
         View view = inflater.inflate(R.layout.fragment_word_of_the_day, container, false);
 
+        TextView countdown = view.findViewById(R.id.WOTD_Countdown);
+
 
         AppViewModelFactory factory = new AppViewModelFactory(requireContext());
         dailyWordViewModel = new ViewModelProvider(this, factory).get(DailyWordViewModel.class);
 
         wordDisplay = view.findViewById(R.id.WOTD_Word_Text);
+
+        dailyWordViewModel.fetchWordIfNeeded(requireActivity());
 
         observeViewModel();
         return view;
@@ -47,10 +54,7 @@ public class DailyWordFragment extends Fragment implements IOnFragmentVisibleLis
 
         dailyWordViewModel.getErrorLiveData().observe(getViewLifecycleOwner(), error -> {
             if (error != null) {
-
                 Toast.makeText(getContext(),  error, Toast.LENGTH_SHORT).show();
-
-
             }
         });
     }

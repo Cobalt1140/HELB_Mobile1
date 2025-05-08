@@ -6,16 +6,15 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.example.helb_mobile1.DatabaseManager;
-import com.example.helb_mobile1.IDailyWordCallback;
-import com.example.helb_mobile1.PreferencesManager;
-import com.example.helb_mobile1.TimeConfig;
+import com.example.helb_mobile1.managers.DatabaseManager;
+import com.example.helb_mobile1.managers.db_callbacks.IDailyWordCallback;
+import com.example.helb_mobile1.managers.PreferencesManager;
+import com.example.helb_mobile1.managers.TimeConfig;
 
 
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 
 public class DailyWordViewModel extends ViewModel {
 
@@ -61,20 +60,9 @@ public class DailyWordViewModel extends ViewModel {
             wordLiveData.setValue(word);
         }
     }
-
+    //TODO Should I make this public? So that the user can manually refetch the word.
     private void fetchWordAndSetPref(Context context){
-
-        ZoneId zoneId = ZoneId.of("Europe/Brussels");
-        ZonedDateTime now = ZonedDateTime.now(zoneId);
-
-
-        if (now.getHour() < TimeConfig.NEW_WORD_TIME_HOUR) {
-            now = now.minusDays(1);
-        }
-
-        String targetDate = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-
-        DatabaseManager.getInstance().fetchAndHandleDailyWord(targetDate, new IDailyWordCallback() {
+        DatabaseManager.getInstance().fetchAndHandleDailyWord(new IDailyWordCallback() {
             @Override
             public void onDailyWordFound(String word) {
                 prefs.saveDailyWordInCache(word, System.currentTimeMillis());

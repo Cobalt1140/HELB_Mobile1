@@ -7,9 +7,8 @@ import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.helb_mobile1.AuthManager;
+import com.example.helb_mobile1.managers.AuthManager;
 import com.example.helb_mobile1.main.MainActivity;
-import com.google.firebase.FirebaseApp;
 
 @SuppressLint("CustomSplashScreen")
 public class SplashActivity extends AppCompatActivity {

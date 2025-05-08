@@ -42,6 +42,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, IOnFrag
     private GoogleMap myMap;
     private FusedLocationProviderClient fusedLocationProviderClient;
     private MapViewModel mapViewModel;
+    private Button cameraRedirectButton;
     private ActivityResultLauncher<String> locationPermissionLauncher;
     private ActivityResultLauncher<Intent> cameraActivityLauncher;
 
@@ -62,7 +63,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, IOnFrag
         }
 
 
-        Button cameraRedirectButton = view.findViewById(R.id.map_redirect_camera);
+        cameraRedirectButton = view.findViewById(R.id.map_redirect_camera);
         cameraActivityLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
@@ -88,6 +89,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, IOnFrag
         cameraRedirectButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Toast.makeText(requireActivity(), "lol", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 if (intent.resolveActivity(requireActivity().getPackageManager()) != null){
                     cameraActivityLauncher.launch(intent);
@@ -114,9 +116,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, IOnFrag
         return view;
     }
 
-        /*
-
-         */
 
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
@@ -155,6 +154,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, IOnFrag
                 Toast.makeText(requireActivity(), notif, Toast.LENGTH_SHORT).show();
             }
         });
+        mapViewModel.getIsCameraVisible().observe(getViewLifecycleOwner(), isCameraVisible ->{
+            if (isCameraVisible){
+                cameraRedirectButton.setVisibility(View.VISIBLE);
+            } else {
+                cameraRedirectButton.setVisibility(View.INVISIBLE);
+            }
+        });
+
+
 
     }
 
