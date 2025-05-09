@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.helb_mobile1.managers.AuthManager;
 import com.example.helb_mobile1.main.MainActivity;
+import com.example.helb_mobile1.managers.PreferencesManager;
 
 @SuppressLint("CustomSplashScreen")
 public class SplashActivity extends AppCompatActivity {
@@ -30,6 +31,7 @@ public class SplashActivity extends AppCompatActivity {
 
             // Not logged in, go to Auth screen
             Log.d("SplashCheck", "User is logged out");
+            PreferencesManager.getInstance(this).resetPersonalMarkerInCache();
             Intent intent = new Intent(this, AuthActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);        }

@@ -1,6 +1,7 @@
 package com.example.helb_mobile1.main.map;
 
 import android.content.Context;
+import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -9,6 +10,7 @@ import androidx.lifecycle.ViewModel;
 import com.example.helb_mobile1.managers.AuthManager;
 import com.example.helb_mobile1.managers.DatabaseManager;
 import com.example.helb_mobile1.managers.db_callbacks.IMarkerListCallback;
+import com.example.helb_mobile1.managers.db_callbacks.IPersonalMarkerCallback;
 import com.example.helb_mobile1.managers.db_callbacks.ISubmitMarkerCallback;
 import com.example.helb_mobile1.managers.PreferencesManager;
 import com.example.helb_mobile1.managers.TimeConfig;
@@ -41,7 +43,6 @@ public class MapViewModel extends ViewModel {
     }
 
     public void checkTimeAndHandleResults() {
-        //TODO tbh this code kinda sucks
         LocalTime now = LocalTime.now();
 
         this.isPublishingTime.setValue(now.isAfter(NEW_WORD_TIME) &&
@@ -101,6 +102,34 @@ public class MapViewModel extends ViewModel {
                         .title("My Marker")
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
                 personalMarker.setValue(markerOptions);
+            } else { //if nothing in prefs,
+                DatabaseManager.getInstance().fetchAndHandlePersonalMarker(AuthManager.getInstance().getCurrentUid(), new IPersonalMarkerCallback() {
+                    @Override
+                    public void onUserMarkerFound(String markerId, Map<String, Object> markerData) {
+                        double lat = (double) markerData.get(DatabaseManager.DB_MARKER_LAT);
+                        double lng = (double) markerData.get(DatabaseManager.DB_MARKER_LNG);
+                        MarkerOptions markerOptions = new MarkerOptions()
+                                .position(new LatLng(lat, lng))
+                                .title("My Marker")
+                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+                        personalMarker.setValue(markerOptions);
+
+
+                    }
+
+                    @Override
+                    public void onError(String error) {
+                        notifLiveData.setValue(error);
+                    }
+
+                    @Override
+                    public void onNoPersonalMarker() {
+                        Log.d("idk","No Personal Marker Found");
+                    }
+
+
+                });
+
             }
         }
     }

@@ -73,7 +73,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, IOnFrag
                             fusedLocationProviderClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, cancellationTokenSource.getToken())
                                     .addOnSuccessListener(location -> {
                                         if (location != null) {
-                                            //TODO add more checks to see if this is after submition time and whatnot
+
                                             double lat = location.getLatitude();
                                             double lng = location.getLongitude();
                                             Toast.makeText(requireActivity(), "Lat:"+lat+" Lng:"+lng,Toast.LENGTH_SHORT).show();
@@ -89,7 +89,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, IOnFrag
         cameraRedirectButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(requireActivity(), "lol", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 if (intent.resolveActivity(requireActivity().getPackageManager()) != null){
                     cameraActivityLauncher.launch(intent);
@@ -135,19 +134,21 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, IOnFrag
     }
 
     private void observeViewModel(){
+        mapViewModel.getPersonalMarkerLiveData().observe(getViewLifecycleOwner(), marker -> {
+            if (marker != null){
+                myMap.clear();
+                myMap.addMarker(marker);
+            }
+        });
         mapViewModel.getMarkersLiveData().observe(getViewLifecycleOwner(), markerOptions -> {
             if (!markerOptions.isEmpty()){
-                myMap.clear();
+
                 for (MarkerOptions marker : markerOptions){
                     myMap.addMarker(marker);
                 }
             }
         });
-        mapViewModel.getPersonalMarkerLiveData().observe(getViewLifecycleOwner(), marker -> {
-           if (marker != null){
-               myMap.addMarker(marker);
-           }
-        });
+
 
         mapViewModel.getNotifLiveData().observe(getViewLifecycleOwner(), notif ->{
             if (notif != null){

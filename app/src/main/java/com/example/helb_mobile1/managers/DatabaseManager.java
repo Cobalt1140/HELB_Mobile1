@@ -6,6 +6,7 @@ import com.example.helb_mobile1.managers.db_callbacks.ICurrentTimeCallback;
 import com.example.helb_mobile1.managers.db_callbacks.IDailyWordCallback;
 import com.example.helb_mobile1.managers.db_callbacks.ILeaderboardCallback;
 import com.example.helb_mobile1.managers.db_callbacks.IMarkerListCallback;
+import com.example.helb_mobile1.managers.db_callbacks.IPersonalMarkerCallback;
 import com.example.helb_mobile1.managers.db_callbacks.ISubmitMarkerCallback;
 import com.example.helb_mobile1.managers.db_callbacks.IUserDataCallback;
 import com.example.helb_mobile1.managers.db_callbacks.IUsernameCallback;
@@ -105,11 +106,15 @@ public class DatabaseManager {
 
             @Override
             public void onWithinTimeWindow() {
+                /*
+                TODO DONT FORGET TO RE-ADD THIS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 double distance = haversineDistance(lat, lng, CENTER_POINT_BOUNDARY_LAT, CENTER_POINT_BOUNDARY_LNG);
                 if (distance > BOUNDARY_MAX_DISTANCE) {
                     callback.onError("You are outside the allowed submission area, please go closer to the Plaine Campus.\nDistance from center of campus: " + (int) distance + "m");
                     return;
                 }
+
+                 */
                 fetchAndHandleUsernameWithUid(uid, new IUsernameCallback() {
                     @Override
                     public void onSuccess(String username) {
@@ -196,6 +201,51 @@ public class DatabaseManager {
                         callback.onError(error.getMessage());
                     }
                 });
+    }
+    public void fetchAndHandleDailyWord(IDailyWordCallback callback){
+        DatabaseReference wordRef = db.getReference(DB_DAILY_WORD);
+        wordRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                String dailyWord = snapshot.child(DB_WORD).getValue(String.class);
+                callback.onDailyWordFound(dailyWord);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                callback.onError(error.getMessage());
+            }
+        });
+
+    }
+
+    public void fetchAndHandlePersonalMarker(String targetUid, IPersonalMarkerCallback callback){
+        DatabaseReference markersRef = db.getReference(DB_DAILY_WORD).child(DB_MARKER_LIST);
+        markersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) { //snapshot is list of all markers
+                for (DataSnapshot markerSnap : snapshot.getChildren()) { //foreach marker
+                    String uid = markerSnap.getKey();
+
+                    if (uid != null && uid.equals(targetUid)) {
+                        Map<String, Object> markerData = new HashMap<>();
+                        markerData.put(DB_MARKER_LAT, markerSnap.child(DB_MARKER_LAT).getValue(Double.class));
+                        markerData.put(DB_MARKER_LNG, markerSnap.child(DB_MARKER_LNG).getValue(Double.class));
+                        markerData.put(DB_MARKER_TIMESTAMP, markerSnap.child(DB_MARKER_TIMESTAMP).getValue(Long.class));
+                        markerData.put(DB_USERNAME, markerSnap.child(DB_USERNAME).getValue(String.class));
+                        callback.onUserMarkerFound(uid, markerData);
+                        return;
+                    }
+                }
+                callback.onNoPersonalMarker();
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                callback.onError("Couldn't access database correctly: "+error.getMessage());
+            }
+        });
     }
 
     public void fetchAndHandleMarkerList(String targetUid, IMarkerListCallback callback){
@@ -316,21 +366,6 @@ public class DatabaseManager {
     }
 
 
-    public void fetchAndHandleDailyWord(IDailyWordCallback callback){
-        DatabaseReference wordRef = db.getReference(DB_DAILY_WORD);
-        wordRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                String dailyWord = snapshot.child(DB_WORD).getValue(String.class);
-                callback.onDailyWordFound(dailyWord);
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                callback.onError(error.getMessage());
-            }
-        });
-
-    }
 
 }

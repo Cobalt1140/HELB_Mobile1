@@ -39,7 +39,7 @@ public class AccountFragment extends Fragment implements IOnFragmentVisibleListe
         logOutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                PreferencesManager.getInstance(requireContext()).resetPersonalMarkerInCache();
                 AuthManager.getInstance().signOutUser();
                 Intent intent = new Intent(requireActivity(), AuthActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

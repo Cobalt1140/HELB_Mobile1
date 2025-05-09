@@ -31,6 +31,12 @@ import com.google.android.material.navigation.NavigationBarView;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String DAILY_WORD_TAG = "word_tag";
+    private static final String MAP_TAG = "map_tag";
+    private static final String LEADERBOARD_TAG = "leaderboard_tag";
+    private static final String ACCOUNT_TAG = "account_tag";
+    private static final String ACTIVE_TAG = "active_tag";
+
 
     private DailyWordFragment dailyWordFragment;
     private MapFragment mapFragment;
@@ -61,15 +67,6 @@ public class MainActivity extends AppCompatActivity {
                 TimeConfig.NEW_WORD_TIME_HOUR, AppNotificationManager.REQUEST_CODE_WORD);
 
 
-        /*
-        dailyWordFragment = new DailyWordFragment();
-        mapFragment = new MapFragment();
-        leaderboardFragment = new LeaderboardFragment();
-        accountFragment = new AccountFragment();
-        activeFragment = dailyWordFragment;
-
-         */
-
         if (savedInstanceState == null) {
             // First-time creation
             dailyWordFragment = new DailyWordFragment();
@@ -79,43 +76,55 @@ public class MainActivity extends AppCompatActivity {
             activeFragment = dailyWordFragment;
 
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.main_fragment_container, mapFragment, "2")
+                    .add(R.id.main_fragment_container, mapFragment, MAP_TAG)
                     .hide(mapFragment)
                     .commit();
 
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.main_fragment_container, leaderboardFragment, "3")
+                    .add(R.id.main_fragment_container, leaderboardFragment, LEADERBOARD_TAG)
                     .hide(leaderboardFragment)
                     .commit();
 
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.main_fragment_container, accountFragment, "4")
+                    .add(R.id.main_fragment_container, accountFragment, ACCOUNT_TAG)
                     .hide(accountFragment)
                     .commit();
 
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.main_fragment_container, dailyWordFragment, "1")
+                    .add(R.id.main_fragment_container, dailyWordFragment, DAILY_WORD_TAG)
                     .commit();
         } else {
+            String tag = savedInstanceState.getString(ACTIVE_TAG);
             // Restore fragments
-            dailyWordFragment = (DailyWordFragment) getSupportFragmentManager().findFragmentByTag("1");
-            mapFragment = (MapFragment) getSupportFragmentManager().findFragmentByTag("2");
-            leaderboardFragment = (LeaderboardFragment) getSupportFragmentManager().findFragmentByTag("3");
-            accountFragment = (AccountFragment) getSupportFragmentManager().findFragmentByTag("4");
-
-            // Determine which fragment is visible and set it as active
-            if (dailyWordFragment != null && dailyWordFragment.isVisible()) {
-                activeFragment = dailyWordFragment;
-            } else if (mapFragment != null && mapFragment.isVisible()) {
-                activeFragment = mapFragment;
-            } else if (leaderboardFragment != null && leaderboardFragment.isVisible()) {
-                activeFragment = leaderboardFragment;
-            } else if (accountFragment != null && accountFragment.isVisible()) {
-                activeFragment = accountFragment;
+            Fragment found = getSupportFragmentManager().findFragmentByTag(DAILY_WORD_TAG);
+            if (found instanceof DailyWordFragment) {
+                dailyWordFragment = (DailyWordFragment) found;
             } else {
-                // Fallback in case none are visible
-                activeFragment = dailyWordFragment != null ? dailyWordFragment : new DailyWordFragment();
+                dailyWordFragment = new DailyWordFragment();
             }
+            found = getSupportFragmentManager().findFragmentByTag(MAP_TAG);
+            if (found instanceof MapFragment) {
+                mapFragment = (MapFragment) found;
+            } else {
+                mapFragment = new MapFragment();
+            }
+            found = getSupportFragmentManager().findFragmentByTag(LEADERBOARD_TAG);
+            if (found instanceof LeaderboardFragment) {
+                leaderboardFragment = (LeaderboardFragment) found;
+            } else {
+                leaderboardFragment = new LeaderboardFragment();
+            }
+            found = getSupportFragmentManager().findFragmentByTag(ACCOUNT_TAG);
+            if (found instanceof AccountFragment) {
+                accountFragment = (AccountFragment) found;
+            } else {
+                accountFragment = new AccountFragment();
+            }
+
+
+            activeFragment = getSupportFragmentManager().findFragmentByTag(tag);
+
+            hideRestOfFragments();
         }
 
 
@@ -149,15 +158,41 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void hideRestOfFragments(){
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        if (!activeFragment.equals(dailyWordFragment)){
+            transaction.hide(dailyWordFragment);
+        }
+        if (!activeFragment.equals(mapFragment)){
+            transaction.hide(mapFragment);
+        }
+        if (!activeFragment.equals(leaderboardFragment)){
+            transaction.hide(leaderboardFragment);
+        }
+        if (!activeFragment.equals(accountFragment)){
+            transaction.hide(accountFragment);
+        }
+        transaction.show(activeFragment);
+        transaction.commit();
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(ACTIVE_TAG, activeFragment.getTag());
+    }
 
 
-    public void loadFragment(Fragment fragment) {
+
+    private void loadFragment(Fragment fragment) {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.hide(activeFragment);
         transaction.show(fragment);
         transaction.commit();
         activeFragment = fragment;
-        ((IOnFragmentVisibleListener) fragment).onFragmentVisible();
+        if (fragment instanceof IOnFragmentVisibleListener) {
+            ((IOnFragmentVisibleListener) fragment).onFragmentVisible();
+        }
 
     }
 }
