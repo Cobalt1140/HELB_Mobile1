@@ -27,6 +27,9 @@ import com.example.helb_mobile1.main.MainActivity;
 
 
 public class LoginFragment extends Fragment {
+    /*
+    fragment for the login screen
+     */
 
     private EditText emailInput, passwordInput;
     private AuthViewModel authViewModel;
@@ -35,15 +38,18 @@ public class LoginFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_login, container, false);
+        /*
+        Handles views (buttons, textInputs, checkbox), sets up connection to ViewModel
+         */
 
-        //On Screen buttons and inputs
+
         emailInput = view.findViewById(R.id.Login_Email_Input);
         passwordInput = view.findViewById(R.id.Login_Password_Input);
         Button loginButton = view.findViewById(R.id.Login_Button);
         Button signupRedirectButton = view.findViewById(R.id.Switch_to_Register_Button);
         CheckBox visiblePasswordBox = view.findViewById(R.id.Login_Visible_Password);
 
-        //ViewModel
+
         authViewModel = new ViewModelProvider(requireActivity()).get(AuthViewModel.class);
 
 
@@ -86,7 +92,10 @@ public class LoginFragment extends Fragment {
 
 
 
-    private void observeViewModel() { //Deal with info changes in ViewModel, like loading spinner
+    private void observeViewModel() {
+        /*
+        Deals with data from AuthViewModel
+         */
         authViewModel.getIsLoading().observe(getViewLifecycleOwner(), isLoading -> {
             if (isLoading) { //TODO add loading spinner animation
 
@@ -104,6 +113,9 @@ public class LoginFragment extends Fragment {
         });
 
         authViewModel.getIsLoggedIn().observe(getViewLifecycleOwner(), isLoggedIn -> {
+            /*
+            Redirects to MainActivity when ViewModel says the User is logged in
+             */
             if (isLoggedIn){
                DatabaseManager.getInstance().fetchAndHandleAccountData(AuthManager.getInstance().getCurrentUid(), new IUserDataCallback() {
                     @Override

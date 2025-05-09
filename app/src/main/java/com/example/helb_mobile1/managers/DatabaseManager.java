@@ -26,10 +26,16 @@ import java.util.List;
 import java.util.Map;
 
 public class DatabaseManager {
+    /*
+    Manager for everything related directly to the Firebase Realtime Database
+     */
 
     public static final String DB_USERNAME = "username";
     public static final String DB_MARKER_LAT = "lat";
     public static final String DB_MARKER_LNG = "lng";
+    //Coordinates for the center of the Plaine Campus
+    public static final double CENTER_POINT_BOUNDARY_LAT = 50.81973292056924;
+    public static final double CENTER_POINT_BOUNDARY_LNG = 4.399286094121766;
 
 
     private static final String DB_DAILY_WORD = "dailyWord";
@@ -39,14 +45,12 @@ public class DatabaseManager {
     private static final String DB_POINT_TOTAL = "pointTotal";
     private static final String DB_POINT_DAILY = "dailyPoints";
     private static final String DB_MARKER_TIMESTAMP = "timestamp";
-    private static final double CENTER_POINT_BOUNDARY_LAT = 50.81973292056924; // Example: Brussels
-    private static final double CENTER_POINT_BOUNDARY_LNG = 4.399286094121766;
     private static final double BOUNDARY_MAX_DISTANCE = 350.0; // Allowed range
     private static final String DB_URL = "https://helbmobile1-default-rtdb.europe-west1.firebasedatabase.app/";
 
 
     private final FirebaseDatabase db;
-    private static DatabaseManager instance;
+    private static DatabaseManager instance; //singleton
     /*
     DB Structure
     - userProfiles
@@ -68,6 +72,7 @@ public class DatabaseManager {
 
 
     private DatabaseManager(){
+        //DatabaseManager can only be accessed through getInstance, as it is a singleton
         db = FirebaseDatabase.getInstance(DB_URL);
     }
 
@@ -79,17 +84,22 @@ public class DatabaseManager {
     }
 
     public void createUserProfile(String uid, String username) {
+        /*
+        Creates a new UserProfile in the DB with a given uid and username
+         */
         DatabaseReference userRef = db.getReference(DB_USER_PROFILE).child(uid);
 
-        //TODO make this into a model? debatable
         Map<String, Object> userData = new HashMap<>();
         userData.put(DB_USERNAME, username);
         userData.put(DB_POINT_TOTAL, 0);
         userRef.setValue(userData);
     }
-    //TODO add a delete UserProfile function
+
 
     public void handleIsUsernameTaken(String usernameToCheck, ValueEventListener listener) {
+        /*
+        allows to put in a listener to handle what happens if a username is already taken in the UserProfiles
+         */
         DatabaseReference usersRef = db.getReference(DB_USER_PROFILE);
         usersRef.orderByChild(DB_USERNAME)
                 .equalTo(usernameToCheck)
@@ -98,7 +108,14 @@ public class DatabaseManager {
 
 
     public void submitMarker(String uid, double lat, double lng, ISubmitMarkerCallback callback) {
+        /*
+        method for submitting a marker to the DB
+        uid to verify username of the user
+        lat and lng for the coordinates of the marker to submit
+        callback in parameter to allow to trigger code in different situations
+         */
         handleIfWithinTimeWindow(TimeConfig.NEW_WORD_TIME_HOUR, TimeConfig.PUBLISH_TIME_HOUR, new ICurrentTimeCallback() {
+            //gives callbacks to handle if attempting to submit marker when it's not Publishing Time
             @Override
             public void onTimeCheckFailed(String message) {
                 callback.onError("Problem checking time on server: "+message);
@@ -106,29 +123,30 @@ public class DatabaseManager {
 
             @Override
             public void onWithinTimeWindow() {
-                /*
-                TODO DONT FORGET TO RE-ADD THIS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //Boundary check to see if user is close to the center boundary point (Plaine Campus)
                 double distance = haversineDistance(lat, lng, CENTER_POINT_BOUNDARY_LAT, CENTER_POINT_BOUNDARY_LNG);
                 if (distance > BOUNDARY_MAX_DISTANCE) {
                     callback.onError("You are outside the allowed submission area, please go closer to the Plaine Campus.\nDistance from center of campus: " + (int) distance + "m");
                     return;
                 }
 
-                 */
+
                 fetchAndHandleUsernameWithUid(uid, new IUsernameCallback() {
+                    //fetches the username of the user with the given uid so as to make sure no errors happen with cached usernames
                     @Override
                     public void onSuccess(String username) {
 
                         DatabaseReference markerRef = db.getReference(DB_DAILY_WORD)
                                 .child(DB_MARKER_LIST)
-                                .child(uid); // Use UID as the key
-
+                                .child(uid);
+                        //creates marker data
                         Map<String, Object> markerData = new HashMap<>();
                         markerData.put(DB_MARKER_LAT, lat);
                         markerData.put(DB_MARKER_LNG, lng);
                         markerData.put(DB_USERNAME, username);
                         markerData.put(DB_MARKER_TIMESTAMP, System.currentTimeMillis());
 
+                        //submits marker to the DB marker List
                         markerRef.setValue(markerData)
                                 .addOnSuccessListener(task -> callback.onSuccess())
                                 .addOnFailureListener(e -> callback.onError(e.getMessage()));
@@ -143,7 +161,7 @@ public class DatabaseManager {
 
             @Override
             public void onOutsideTimeWindow(int time) {
-                callback.onError("Outside of time window (8h-18h): "+time);
+                callback.onError("En dehors de la fenêtre horaire ("+TimeConfig.NEW_WORD_TIME_HOUR+"-"+TimeConfig.PUBLISH_TIME_HOUR+")\n Heure actuelle: "+time);
             }
         });
 
@@ -151,10 +169,15 @@ public class DatabaseManager {
 
 
     public void fetchAndHandleAccountData(String uid, IUserDataCallback callback) {
+        /*
+        fetches user's account data with given uid, such as their username and global points, to display in Account Fragment
+        callback in parameter to allow to trigger code in different situations
+         */
         DatabaseReference userRef = db.getReference(DB_USER_PROFILE).child(uid);
         userRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                //takes a snapshot of the database from the DatabaseReference when fetched to get data from
                 String username = snapshot.child(DB_USERNAME).getValue(String.class);
                 long points = snapshot.child(DB_POINT_TOTAL).getValue(Long.class);
                 callback.onUserDataReceived(username, points);
@@ -168,6 +191,12 @@ public class DatabaseManager {
     }
 
     public void fetchAndHandleLeaderboard(Boolean isTrueDailyFalseGlobal, ILeaderboardCallback callback){
+        /*
+        fetches user scores for leaderboard use
+        isTrueDailyFalseGlobal is to handle which ordering we want to give the list for the callback
+        (True = Daily = Ordered descending from scores in DailyPoints; False = Global =Ordered descending from scores in pointTotal)
+        callback in parameter to allow to trigger code in different situations
+         */
         DatabaseReference usersRef = db.getReference(DB_USER_PROFILE);
 
         String dailyOrGlobal;
@@ -177,11 +206,13 @@ public class DatabaseManager {
             dailyOrGlobal = DB_POINT_TOTAL;
         }
         usersRef.orderByChild(dailyOrGlobal)
-                .limitToLast(25)
+                .limitToLast(25) //only gets the top 25 users
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        List<UserScore> userScores = new ArrayList<>();
+                        //takes a snapshot of the database from the DatabaseReference when fetched to get data from
+
+                        List<UserScore> userScores = new ArrayList<>(); //new Ordered List for ranking of Users, using UserScore data Model
 
                         for (DataSnapshot userSnap : snapshot.getChildren()) {
                             String username = userSnap.child(DB_USERNAME).getValue(String.class);
@@ -191,22 +222,26 @@ public class DatabaseManager {
                                 userScores.add(new UserScore(username, score != null ? score : 0));
                             }
                         }
-                        Collections.reverse(userScores);
+                        Collections.reverse(userScores); //the list is ordered ascending, so reverse for descending
                         callback.onSuccess(userScores);
                     }
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {
-                        // Handle error
                         callback.onError(error.getMessage());
                     }
                 });
     }
     public void fetchAndHandleDailyWord(IDailyWordCallback callback){
+        /*
+        fetches the Daily Word from the database
+        callback in parameter to allow to trigger code in different situations
+         */
         DatabaseReference wordRef = db.getReference(DB_DAILY_WORD);
         wordRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                //takes a snapshot of the database from the DatabaseReference when fetched to get data from
                 String dailyWord = snapshot.child(DB_WORD).getValue(String.class);
                 callback.onDailyWordFound(dailyWord);
             }
@@ -220,10 +255,15 @@ public class DatabaseManager {
     }
 
     public void fetchAndHandlePersonalMarker(String targetUid, IPersonalMarkerCallback callback){
+        /*
+        fetches the user's personal marker from the database using the given uid
+        callback in parameter to allow to trigger code in different situations
+         */
         DatabaseReference markersRef = db.getReference(DB_DAILY_WORD).child(DB_MARKER_LIST);
         markersRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) { //snapshot is list of all markers
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                ////takes a snapshot of the database from the DatabaseReference when fetched to get data from
                 for (DataSnapshot markerSnap : snapshot.getChildren()) { //foreach marker
                     String uid = markerSnap.getKey();
 
@@ -237,7 +277,7 @@ public class DatabaseManager {
                         return;
                     }
                 }
-                callback.onNoPersonalMarker();
+                callback.onNoPersonalMarker(); //callback for if user has not set a personal marker in DB
 
             }
 
@@ -249,7 +289,13 @@ public class DatabaseManager {
     }
 
     public void fetchAndHandleMarkerList(String targetUid, IMarkerListCallback callback){
+        /*
+        fetches the MarkerList from the DB
+        distinguishes the user's personal marker by using the given uid
+        callback in parameter to allow to trigger code in different situations
+         */
         handleIfWithinTimeWindow(TimeConfig.PUBLISH_TIME_HOUR, TimeConfig.NEW_WORD_TIME_HOUR, new ICurrentTimeCallback() {
+            //gives callbacks to handle if attempting to fetch Marker List when it's not Results Time
             @Override
             public void onTimeCheckFailed(String message) {
                 callback.onError("Couldn't verify current server time: "+message);
@@ -261,22 +307,24 @@ public class DatabaseManager {
                 markersRef.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) { //snapshot is list of all markers
-                        //TODO make this into a model
-                        Map<String, Map<String, Object>> allMarkers = new HashMap<>();
+                        //takes a snapshot of the database from the DatabaseReference when fetched to get data from
+                        Map<String, Map<String, Object>> allMarkers = new HashMap<>(); //Map of all markers and their creator's uid
                         for (DataSnapshot markerSnap : snapshot.getChildren()) { //foreach marker
                             String uid = markerSnap.getKey();
                             Map<String, Object> markerData = new HashMap<>();
+                            //creates a marker with lat and lng coordinates, the timestamp of when it was created and the creator's username
+
                             markerData.put(DB_MARKER_LAT, markerSnap.child(DB_MARKER_LAT).getValue(Double.class));
                             markerData.put(DB_MARKER_LNG, markerSnap.child(DB_MARKER_LNG).getValue(Double.class));
                             markerData.put(DB_MARKER_TIMESTAMP, markerSnap.child(DB_MARKER_TIMESTAMP).getValue(Long.class));
                             markerData.put(DB_USERNAME, markerSnap.child(DB_USERNAME).getValue(String.class));
                             if (uid != null && uid.equals(targetUid)) {
-                                callback.onUserMarkerFound(uid, markerData);
+                                callback.onUserMarkerFound(uid, markerData); //callback for when the user's marker is found, do different callback for this
                             } else {
                                 allMarkers.put(uid, markerData);
                             }
                         }
-                        callback.onMarkersFetched(allMarkers);
+                        callback.onMarkersFetched(allMarkers); //callback for the whole list of markers from DB (except user Marker if found)
                     }
 
                     @Override
@@ -288,14 +336,17 @@ public class DatabaseManager {
 
             @Override
             public void onOutsideTimeWindow(int time) {
-                callback.onError("Outside time window ("+TimeConfig.PUBLISH_TIME_HOUR+"h-"+
-                        TimeConfig.NEW_WORD_TIME_HOUR+"h)\nCurrent hour: "+time+"h");
+                callback.onError("En dehors de la fenêtre horaire ("+TimeConfig.PUBLISH_TIME_HOUR+"h-"+
+                        TimeConfig.NEW_WORD_TIME_HOUR+"h)\nHeure actuelle: "+time+"h");
             }
         });
 
     }
 
     private double haversineDistance(double lat1, double lon1, double lat2, double lon2) {
+        /*
+        formula to calculate distance between two coordinates (lat1,lng1) - (lat2,lng2)
+         */
         final int R = 6371000; // Radius of the Earth in meters
         double dLat = Math.toRadians(lat2 - lat1);
         double dLon = Math.toRadians(lon2 - lon1);
@@ -307,10 +358,15 @@ public class DatabaseManager {
     }
 
     private void fetchAndHandleUsernameWithUid(String uid, IUsernameCallback callback){
+        /*
+        fetches a user's username with the given uid, so as to not rely on cached data
+        callback in parameter to allow to trigger code in different situations
+         */
         DatabaseReference userRef = db.getReference(DB_USER_PROFILE).child(uid);
         userRef.child(DB_USERNAME).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                //takes a snapshot of the database from the DatabaseReference when fetched to get data from
                 String username = snapshot.getValue(String.class);
                 if (username != null) {
                     callback.onSuccess(username);
@@ -327,12 +383,19 @@ public class DatabaseManager {
     }
 
     private void handleIfWithinTimeWindow(int startHour, int endHour, ICurrentTimeCallback callback) {
+        /*
+        gets the database's internal timestamp and compares it to the user's current Time
+        gives different callbacks to handle if the user is or isn't in the time window
+        this method assures the user cannot trick the app by changing their system clock
+         */
         DatabaseReference serverTimeRef = db.getReference("serverTime");
 
         serverTimeRef.setValue(ServerValue.TIMESTAMP);
+        //gets the value from the server, which also sets it to a more recent one as it triggers an update in the database
         serverTimeRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                //takes a snapshot of the database from the DatabaseReference when fetched to get data from
                 Long utcMillis = snapshot.getValue(Long.class);
                 if (utcMillis == null) {
                     callback.onTimeCheckFailed("Server time fetch failed");
@@ -341,11 +404,12 @@ public class DatabaseManager {
 
                 ZonedDateTime belgianTime = Instant.ofEpochMilli(utcMillis)
                         .atZone(ZoneId.of(TimeConfig.SERVER_TIMEZONE));
+                //gets the user's current time (assuming they're in Belgium)
 
                 int currentHour = belgianTime.getHour();
 
                 boolean inWindow;
-                if (startHour < endHour) {
+                if (startHour < endHour) { //handles if start hour is higher than end hour, so that Day Change is accounted for
                     inWindow = currentHour >= startHour && currentHour < endHour;
                 } else {
                     inWindow = currentHour >= startHour || currentHour < endHour;

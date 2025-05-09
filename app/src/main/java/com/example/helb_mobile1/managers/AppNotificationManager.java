@@ -6,11 +6,17 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
-import java.util.Calendar;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+
 
 
 public class AppNotificationManager {
+    /*
+    manager for the app's notifications
+     */
     public static final String CHANNEL_ID = "inPlaineSightNotifications";
     public static final String EXTRA_NOTIFICATION_TYPE = "notification_type";
     public static final String NOTIF_TYPE_DAILY_WORD = "DailyWord";
@@ -21,7 +27,7 @@ public class AppNotificationManager {
     private final Context context;
 
     public AppNotificationManager(Context context) {
-        this.context = context.getApplicationContext(); // Use app context to avoid leaks
+        this.context = context.getApplicationContext();
         createNotificationChannel();
     }
 
@@ -39,6 +45,7 @@ public class AppNotificationManager {
     }
 
     public void scheduleReminder(String type, int hour, int requestCode) {
+        //schedules a notification
         //type so that the NotificationReceiver knows what to do with the notification
         //hour for obvious purposes
         //requestCode so Android OS knows if duplicate Notification or not
@@ -53,34 +60,24 @@ public class AppNotificationManager {
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
         );
 
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, hour);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
+        ZoneId belgium = ZoneId.of(TimeConfig.SERVER_TIMEZONE);
+        ZonedDateTime now = ZonedDateTime.now(belgium);
+        ZonedDateTime target = now.withHour(hour).withMinute(0).withSecond(0).withNano(0);
 
-        if (calendar.getTimeInMillis() <= System.currentTimeMillis()) {
-            calendar.add(Calendar.DAY_OF_YEAR, 1);
+        //if target date is already behind current time, schedule the notification for next day
+        if (target.isBefore(now)) {
+            target = target.plusDays(1);
         }
+        Log.d("AppNotificationManager", "Scheduling " + type + " notification at " + target.toString());
 
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         alarmManager.setRepeating(
                 AlarmManager.RTC_WAKEUP,
-                calendar.getTimeInMillis(),
+                target.toInstant().toEpochMilli(),
                 AlarmManager.INTERVAL_DAY,
                 pendingIntent
         );
     }
 
-    /*
-    public void cancelDailyReminder() {
-        Intent intent = new Intent(context, NotificationReceiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent,
-                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-
-        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        alarmManager.cancel(pendingIntent);
-    }
-
-     */
 }
 

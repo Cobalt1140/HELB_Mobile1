@@ -8,6 +8,9 @@ import androidx.fragment.app.FragmentTransaction;
 import com.example.helb_mobile1.R;
 
 public class AuthActivity extends AppCompatActivity {
+    /*
+    Activity that contains both login and register fragments
+     */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -15,12 +18,13 @@ public class AuthActivity extends AppCompatActivity {
         setContentView(R.layout.activity_authentication);
 
         // Show LoginFragment by default
-        if (savedInstanceState == null) { // Only add fragment first time
+        if (savedInstanceState == null) {
             loadFragment(new LoginFragment());
         }
     }
 
     public void loadFragment(Fragment fragment) {
+        //Replaces the current fragment with the other one
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.auth_fragment_container, fragment);
         transaction.commit();

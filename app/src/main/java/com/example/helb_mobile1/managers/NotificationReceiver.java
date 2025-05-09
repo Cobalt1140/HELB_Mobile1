@@ -16,26 +16,33 @@ import com.example.helb_mobile1.R;
 
 
 public class NotificationReceiver extends BroadcastReceiver {
+    /*
+    class to handle receiving a scheduled notification, so that the app knows what to display for the user
+     */
 
 
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        /*
+        method that receives the intent of the notification and reads it to know what to do with it
+         */
         String type = intent.getStringExtra(AppNotificationManager.EXTRA_NOTIFICATION_TYPE);
+        //gets the String tag tied with the intent, which determines which type of notification this is
 
         String title;
         String message;
         int notificationId;
         int image;
 
-        if ("SUBMIT_MARKER".equals(type)) {
+        if (AppNotificationManager.NOTIF_TYPE_DAILY_WORD.equals(type)) {
             title = "In Plaine Sight";
             message = "A new word has appeared! It's time to submit a new marker!";
             notificationId = 1001;
             image = R.drawable.baseline_camera_alt_24;
-        } else if ("CHECK_RESULTS".equals(type)) {
+        } else if (AppNotificationManager.NOTIF_TYPE_DAILY_RESULTS.equals(type)) {
             title = "In Plaine Sight";
-            message = "Submition time is over! See how well you did today!";
+            message = "Submission time is over! See how well you did today!";
             notificationId = 1002;
             image = R.drawable.baseline_leaderboard_24;
 

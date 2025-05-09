@@ -15,9 +15,15 @@ import com.example.helb_mobile1.R;
 import com.example.helb_mobile1.models.UserScore;
 
 public class LeaderboardAdapter extends RecyclerView.Adapter<LeaderboardAdapter.ViewHolder> {
-    private List<UserScore> userScores = new ArrayList<>();
+    /*
+    Class to handle the leaderboard and its interaction with the data it's given
+     */
+    private List<UserScore> userScores = new ArrayList<>(); //Ordered List, UserScore is a data Model
 
     public void updateList(List<UserScore> newScores) {
+        /*
+        gets a list of users and their scores
+         */
         userScores = newScores;
         notifyDataSetChanged();
     }
@@ -25,6 +31,9 @@ public class LeaderboardAdapter extends RecyclerView.Adapter<LeaderboardAdapter.
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        /*
+        handles what happens when the ViewHolder is created
+         */
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_leaderboard, parent, false);
         return new ViewHolder(view);
@@ -32,13 +41,15 @@ public class LeaderboardAdapter extends RecyclerView.Adapter<LeaderboardAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        /*
+        userScores is an ordered list of users, ordered by their points
+        gets a position index and sets at that rank the user from the ordered list
+         */
         UserScore userScore = userScores.get(position);
         holder.rankText.setText(String.valueOf(position + 1));
         holder.usernameText.setText(userScore.getUsername());
         holder.scoreText.setText(String.valueOf(userScore.getScore()));
     }
-
-
 
     @Override
     public int getItemCount() {
@@ -46,6 +57,9 @@ public class LeaderboardAdapter extends RecyclerView.Adapter<LeaderboardAdapter.
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
+        /*
+        class for the leaderboard display itself, has it's own views to display info with
+         */
         TextView rankText, usernameText, scoreText;
 
         public ViewHolder(View itemView) {

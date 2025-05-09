@@ -7,6 +7,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 public class AuthManager {
+    /*
+    manager for everything related directly to Firebase Authentication
+     */
     private final FirebaseAuth mAuth;
     private static AuthManager instance; //singleton
     private AuthManager(){
@@ -14,6 +17,7 @@ public class AuthManager {
     }
 
     public static synchronized AuthManager getInstance() {
+        //AuthManager can only be accessed through getInstance, as it is a singleton
         if (instance == null) {
             instance = new AuthManager();
         }
@@ -37,12 +41,6 @@ public class AuthManager {
             return getCurrentUser().getUid();
         } else {
             return null;
-        }
-    }
-
-    public void deleteUserAccount(){
-        if (isLoggedIn()){
-            getCurrentUser().delete();
         }
     }
 

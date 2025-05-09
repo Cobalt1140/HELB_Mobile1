@@ -10,6 +10,10 @@ import com.example.helb_mobile1.main.dailyWord.DailyWordViewModel;
 import com.example.helb_mobile1.main.map.MapViewModel;
 
 public class AppViewModelFactory implements ViewModelProvider.Factory {
+    /*
+    generic ViewModelFactory to give context to ViewModels when instanciated through this,
+    allows SharedPreferences use
+     */
 
     private final Context appContext;
 

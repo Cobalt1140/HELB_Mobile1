@@ -2,20 +2,20 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item android:id="@+id/word_of_the_day"
-        android:title="Daily Word"
+        android:title="Mot Quotidien"
         android:icon="@drawable/baseline_home_24"
         />
     <item android:id="@+id/map"
-        android:title="Map"
+        android:title="Carte"
         android:icon="@drawable/baseline_map_24"
         />
     <item android:id="@+id/leaderboard_rank_text"
-        android:title="Leaderboards"
+        android:title="Classement"
         android:icon="@drawable/baseline_leaderboard_24"
         />
     <item android:id="@+id/account"
         android:icon="@drawable/baseline_account_circle_24"
-        android:title="Account"
+        android:title="Compte"
         />
 
 </menu>

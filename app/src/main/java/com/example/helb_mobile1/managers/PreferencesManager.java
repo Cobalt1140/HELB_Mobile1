@@ -4,18 +4,23 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 public class PreferencesManager {
+    /*
+    manager for Shared Preferences
+     */
     private final String CACHED_WORD_NAME = "cachedWord";
     private final String CACHED_WORD_TIMESTAMP = "cachedWordTimestamp";
     private final String CACHED_USERNAME_NAME = "cachedUsername";
     private final String CACHED_POINT_TOTAL_NAME = "cachedPointTotal";
     private final String CACHED_MARKER_LAT_NAME = "cachedMarkerLat";
     private final String CACHED_MARKER_LNG_NAME = "cachedMarkerLng";
+    //the names under which these values are stored in the Shared Preferences file
     private final String PREF_FILE_NAME = "app_prefs";
-    private final SharedPreferences sharedPreferences;
+    private final SharedPreferences sharedPreferences; //singleton
 
     private static PreferencesManager instance;
 
     private PreferencesManager(Context context) {
+        //PreferencesManager can only be accessed through getInstance, as it is a singleton
         sharedPreferences = context.getApplicationContext().getSharedPreferences(PREF_FILE_NAME, Context.MODE_PRIVATE);
     }
 
@@ -51,12 +56,16 @@ public class PreferencesManager {
     }
 
     public double getCachedPersonalMarkerLat(){
+        //Double isn't supported as a value type that can be stored in SharedPreferences,
+        // however we can store it as a long as it is the same size, we just have to convert it
         return  Double.longBitsToDouble(sharedPreferences.getLong(CACHED_MARKER_LAT_NAME, Double.doubleToLongBits(0)));
     }
 
 
 
     public double getCachedPersonalMarkerLng(){
+        //Double isn't supported as a value type that can be stored in SharedPreferences,
+        // however we can store it as a long as it is the same size, we just have to convert it
         return Double.longBitsToDouble(sharedPreferences.getLong(CACHED_MARKER_LNG_NAME, Double.doubleToLongBits(0)));
     }
 

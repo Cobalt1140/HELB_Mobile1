@@ -27,6 +27,9 @@ import com.example.helb_mobile1.main.MainActivity;
 
 
 public class RegisterFragment extends Fragment {
+    /*
+    fragment for the register screen
+     */
 
 
     private AuthViewModel authViewModel;
@@ -34,6 +37,9 @@ public class RegisterFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        /*
+        handles views, sets up ViewModel
+         */
         View view = inflater.inflate(R.layout.fragment_register, container, false);
 
         EditText emailInput = view.findViewById(R.id.Register_Email_Input);
@@ -99,6 +105,9 @@ public class RegisterFragment extends Fragment {
         });
 
         authViewModel.getIsLoggedIn().observe(getViewLifecycleOwner(), isLoggedIn -> {
+            /*
+            Redirects to MainActivity when ViewModel says the User is logged in
+             */
             if (isLoggedIn){
                 DatabaseManager.getInstance().fetchAndHandleAccountData(AuthManager.getInstance().getCurrentUid(), new IUserDataCallback() {
                     @Override

@@ -25,12 +25,15 @@ import java.util.Map;
 
 
 public class MapViewModel extends ViewModel {
+    /*
+    ViewModel for the Map Fragment, handles data related to the map
+     */
 
     private final LocalTime LOCATION_PUBLISH_TIME = LocalTime.of(TimeConfig.PUBLISH_TIME_HOUR,0);
     private final LocalTime NEW_WORD_TIME = LocalTime.of(TimeConfig.NEW_WORD_TIME_HOUR,0);
 
     private final MutableLiveData<Boolean> isPublishingTime = new MutableLiveData<>();
-    private final MutableLiveData<Boolean> isResultsTime = new MutableLiveData<>();
+
     private final MutableLiveData<Boolean> isCameraVisible = new MutableLiveData<>();
     private final MutableLiveData<MarkerOptions> personalMarker = new MutableLiveData<>();
     private final MutableLiveData<List<MarkerOptions>> markers = new MutableLiveData<>(new ArrayList<>());
@@ -43,17 +46,22 @@ public class MapViewModel extends ViewModel {
     }
 
     public void checkTimeAndHandleResults() {
+        /*
+        triggers time-sensitive methods corresponding to the current time.
+         */
         LocalTime now = LocalTime.now();
 
         this.isPublishingTime.setValue(now.isAfter(NEW_WORD_TIME) &&
                 now.isBefore(LOCATION_PUBLISH_TIME));
-        this.isResultsTime.setValue(now.isBefore(NEW_WORD_TIME) || now.isAfter(LOCATION_PUBLISH_TIME));
-        if (Boolean.TRUE.equals(isResultsTime.getValue())){
+
+        if (Boolean.FALSE.equals(isPublishingTime.getValue())){ //this code handles if isPublishingTime is null
+            //Results time, resets the cached marker to get the one from DB as well as markerList
             prefs.resetPersonalMarkerInCache();
             isCameraVisible.setValue(false);
             loadMarkersFromDatabase();
         } else if (Boolean.TRUE.equals(isPublishingTime.getValue())){
-            setPersonalMarkerFromPrefsIntoMap();
+            //Publishing time,gets personal marker from cache (SharedPreferences)
+            setPersonalMarkerIntoMap();
             isCameraVisible.setValue(true);
         }
     }
@@ -69,7 +77,8 @@ public class MapViewModel extends ViewModel {
     }
     public LiveData<Boolean> getIsCameraVisible(){return isCameraVisible;}
 
-    public void setPersonalMarker(double lat, double lng){ //For use with camera in fragment
+    public void setPersonalMarker(double lat, double lng){
+        //Used with camera result in MapFragment, submits marker with given parameters
         if (Boolean.TRUE.equals(isPublishingTime.getValue())){
 
             DatabaseManager.getInstance().submitMarker(AuthManager.getInstance().getCurrentUid(),
@@ -81,28 +90,31 @@ public class MapViewModel extends ViewModel {
 
                 @Override
                 public void onSuccess() {
-                    notifLiveData.setValue("Marker submitted!");
+                    notifLiveData.setValue("Marqueur envoyé!");
                     prefs.savePersonalMarkerInCache(lat,lng);
-                    setPersonalMarkerFromPrefsIntoMap();
+                    setPersonalMarkerIntoMap();
                 }
             });
         } else {
-            notifLiveData.setValue("Please take a picture during submission time");
+            notifLiveData.setValue("Veuillez prendre une photo durant le temps de soumission");
         }
     }
 
-    private void setPersonalMarkerFromPrefsIntoMap(){
+    private void setPersonalMarkerIntoMap(){
+        /*
+        Sets the cached Personal Marker from Shared Preferences into the map if publishing time
+        or sets the Personal Marker from DB if not publishing Time
+         */
         if (Boolean.TRUE.equals(isPublishingTime.getValue())){
-
             if (prefs.getCachedPersonalMarkerLng() != (double)0.0 && prefs.getCachedPersonalMarkerLat()!= (double)0.0){
                 double lat = prefs.getCachedPersonalMarkerLat();
                 double lng = prefs.getCachedPersonalMarkerLng();
                 MarkerOptions markerOptions = new MarkerOptions()
                         .position(new LatLng(lat, lng))
-                        .title("My Marker")
+                        .title("Mon Marqueur")
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
                 personalMarker.setValue(markerOptions);
-            } else { //if nothing in prefs,
+            } else { //if nothing in prefs (nothing is stored as 0.0 in Shared Preferences)
                 DatabaseManager.getInstance().fetchAndHandlePersonalMarker(AuthManager.getInstance().getCurrentUid(), new IPersonalMarkerCallback() {
                     @Override
                     public void onUserMarkerFound(String markerId, Map<String, Object> markerData) {
@@ -110,7 +122,7 @@ public class MapViewModel extends ViewModel {
                         double lng = (double) markerData.get(DatabaseManager.DB_MARKER_LNG);
                         MarkerOptions markerOptions = new MarkerOptions()
                                 .position(new LatLng(lat, lng))
-                                .title("My Marker")
+                                .title("Mon Marquer")
                                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
                         personalMarker.setValue(markerOptions);
 
@@ -124,7 +136,7 @@ public class MapViewModel extends ViewModel {
 
                     @Override
                     public void onNoPersonalMarker() {
-                        Log.d("idk","No Personal Marker Found");
+                        Log.d("MapViewModel","No Personal Marker Found");
                     }
 
 
@@ -137,6 +149,9 @@ public class MapViewModel extends ViewModel {
 
 
     private void loadMarkersFromDatabase() {
+        /*
+        sets markers in LiveData from a fetch in DB
+         */
         String uid = AuthManager.getInstance().getCurrentUid();
         DatabaseManager.getInstance().fetchAndHandleMarkerList(uid, new IMarkerListCallback() {
             @Override
@@ -164,11 +179,13 @@ public class MapViewModel extends ViewModel {
 
             @Override
             public void onUserMarkerFound(String uid, Map<String, Object> markerData) {
+                //this method is always triggered before onMarkersFetched (if user submitted a marker),
+                // as the DB uses this callback first
                 double lat = (Double) markerData.get(DatabaseManager.DB_MARKER_LAT);
                 double lng = (Double) markerData.get(DatabaseManager.DB_MARKER_LNG);
                 MarkerOptions markerOptions = new MarkerOptions()
                         .position(new LatLng(lat, lng))
-                        .title("My Marker")
+                        .title("Mon Marqueur")
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
                 personalMarker.setValue(markerOptions);
 
@@ -176,7 +193,7 @@ public class MapViewModel extends ViewModel {
 
             @Override
             public void onError(String error) {
-                notifLiveData.setValue(error);
+                Log.d("MapViewModel", error);
             }
         });
 

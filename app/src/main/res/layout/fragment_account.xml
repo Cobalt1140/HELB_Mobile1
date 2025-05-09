@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="40dp"
         android:layout_marginTop="23dp"
-        android:text="Username"
+        android:text="Nom d'utilisateur"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -22,7 +22,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="24dp"
-        android:text="Log Out"
+        android:text="Se déconnecter"
         app:layout_constraintBaseline_toBaselineOf="@+id/Account_Username_Text"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -30,10 +30,29 @@
         android:id="@+id/Account_Point_Total_Text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="64dp"
+        android:layout_marginTop="16dp"
         android:text="PointTotal"
         app:layout_constraintEnd_toEndOf="@+id/Account_Username_Text"
         app:layout_constraintStart_toStartOf="@+id/Account_Username_Text"
         app:layout_constraintTop_toBottomOf="@+id/Account_Username_Text" />
 
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/Account_Explanation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="" />
+    </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,17 +1,13 @@
 package com.example.helb_mobile1.main;
 
-import android.Manifest;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.content.pm.PackageManager;
-import android.os.Build;
+
 import android.os.Bundle;
 import android.view.MenuItem;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
+
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -24,12 +20,15 @@ import com.example.helb_mobile1.main.dailyWord.DailyWordFragment;
 import com.example.helb_mobile1.main.leaderboard.LeaderboardFragment;
 import com.example.helb_mobile1.main.map.MapFragment;
 import com.example.helb_mobile1.managers.AppNotificationManager;
-import com.example.helb_mobile1.managers.NotificationReceiver;
 import com.example.helb_mobile1.managers.TimeConfig;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
 public class MainActivity extends AppCompatActivity {
+    /*
+    The Main Activity which holds the 4 main fragments of each tab screen
+    handles switching between the different fragments, screen rotation and app notifications
+     */
 
     private static final String DAILY_WORD_TAG = "word_tag";
     private static final String MAP_TAG = "map_tag";
@@ -60,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.main_bottom_navigation);
 
+        //notifications for Results time and New Word time
         AppNotificationManager notificationManager = new AppNotificationManager(this);
         notificationManager.scheduleReminder(AppNotificationManager.NOTIF_TYPE_DAILY_RESULTS,
                 TimeConfig.PUBLISH_TIME_HOUR, AppNotificationManager.REQUEST_CODE_RESULTS);
@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         if (savedInstanceState == null) {
-            // First-time creation
+            // First-time creation of fragments
             dailyWordFragment = new DailyWordFragment();
             mapFragment = new MapFragment();
             leaderboardFragment = new LeaderboardFragment();
@@ -94,8 +94,11 @@ public class MainActivity extends AppCompatActivity {
                     .add(R.id.main_fragment_container, dailyWordFragment, DAILY_WORD_TAG)
                     .commit();
         } else {
+            // Restore fragments instead of recreating them
+
+            //gets the tag for the active tag before the fragments were destroyed
             String tag = savedInstanceState.getString(ACTIVE_TAG);
-            // Restore fragments
+
             Fragment found = getSupportFragmentManager().findFragmentByTag(DAILY_WORD_TAG);
             if (found instanceof DailyWordFragment) {
                 dailyWordFragment = (DailyWordFragment) found;
@@ -121,7 +124,6 @@ public class MainActivity extends AppCompatActivity {
                 accountFragment = new AccountFragment();
             }
 
-
             activeFragment = getSupportFragmentManager().findFragmentByTag(tag);
 
             hideRestOfFragments();
@@ -133,6 +135,9 @@ public class MainActivity extends AppCompatActivity {
 
 
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
+            /*
+            listener for clicking the items in the BottomNavigationView
+             */
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 int id = item.getItemId();
@@ -159,6 +164,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void hideRestOfFragments(){
+        /*
+        if fragments are recreated or restored, they might be shown overlapped
+        this method hides all fragments except for the one who had the active tag before being destroyed
+         */
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         if (!activeFragment.equals(dailyWordFragment)){
             transaction.hide(dailyWordFragment);
@@ -179,12 +188,17 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
+        //before being destroyed, the active fragment will save a tag which will be saved for when fragments have to be restored
         outState.putString(ACTIVE_TAG, activeFragment.getTag());
     }
 
 
 
     private void loadFragment(Fragment fragment) {
+        /*
+        shows the given fragment in the parameter, hiding the last active fragment
+        we hide and show instead of replacing as the map is costly to recreate every time, and replacing destroys the fragment
+         */
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.hide(activeFragment);
         transaction.show(fragment);

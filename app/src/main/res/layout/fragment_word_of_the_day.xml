@@ -24,10 +24,12 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/WOTD_Countdown"
+        android:id="@+id/WOTD_Countdown_Text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Countdown"
+        android:text="00:00:00"
+        android:textAlignment="center"
+        android:textSize="24sp"
         app:layout_constraintBottom_toTopOf="@+id/WOTD_Word_Text"
         app:layout_constraintEnd_toEndOf="@+id/WOTD_Word_Text"
         app:layout_constraintStart_toStartOf="@+id/WOTD_Word_Text"

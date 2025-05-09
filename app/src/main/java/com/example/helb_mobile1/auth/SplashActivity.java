@@ -13,6 +13,9 @@ import com.example.helb_mobile1.managers.PreferencesManager;
 
 @SuppressLint("CustomSplashScreen")
 public class SplashActivity extends AppCompatActivity {
+    /*
+    Entry Activity for the app, determines if you have to log In or go straight to MainActivity
+     */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +38,6 @@ public class SplashActivity extends AppCompatActivity {
             Intent intent = new Intent(this, AuthActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);        }
-        finish(); // Close Splash screen
+        finish();
     }
 }

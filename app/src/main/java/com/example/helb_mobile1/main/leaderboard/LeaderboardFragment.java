@@ -21,6 +21,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LeaderboardFragment extends Fragment implements IOnFragmentVisibleListener {
+    /*
+    One of the 4 main fragments in MainActivity, handles what is related to the leaderboard tab
+     */
 
     private LeaderboardAdapter adapter;
     private TabLayout tabLayout;
@@ -29,18 +32,22 @@ public class LeaderboardFragment extends Fragment implements IOnFragmentVisibleL
     private List<UserScore> dailyList = new ArrayList<>();
 
     private static final String GLOBAL = "Global";
-    private static final String DAILY = "Daily";
+    private static final String DAILY = "Quotidien";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        /*
+        upon creation of fragment, handles views and sets up the leaderboard and it's adapter,
+        triggers initial methods
+         */
         View view = inflater.inflate(R.layout.fragment_leaderboard, container, false);
 
         tabLayout = view.findViewById(R.id.tab_layout);
-        RecyclerView recyclerLeaderboard = view.findViewById(R.id.recyclerLeaderboard);
+        RecyclerView recyclerLeaderboard = view.findViewById(R.id.recyclerLeaderboard); //Recycler View
         recyclerLeaderboard.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        adapter = new LeaderboardAdapter();
+        adapter = new LeaderboardAdapter(); //adapts the recycler View according to data given
         recyclerLeaderboard.setAdapter(adapter);
 
         setupTabs();
@@ -50,6 +57,10 @@ public class LeaderboardFragment extends Fragment implements IOnFragmentVisibleL
     }
 
     private void setupTabs() {
+        /*
+        adds both daily and global tabs, to sort users by daily or global points
+        adds listener for the tab selection
+         */
         tabLayout.addTab(tabLayout.newTab().setText(GLOBAL));
         tabLayout.addTab(tabLayout.newTab().setText(DAILY));
 
@@ -67,6 +78,9 @@ public class LeaderboardFragment extends Fragment implements IOnFragmentVisibleL
     }
 
     private void fetchLeaderboards() {
+        /*
+        fetches user Data from DB for both the Daily Points ordered List and Global Points ordered List
+         */
         DatabaseManager.getInstance().fetchAndHandleLeaderboard(false,new ILeaderboardCallback() {
             @Override
             public void onSuccess(List<UserScore> scores) {
