@@ -70,5 +70,7 @@ public class NotificationReceiver extends BroadcastReceiver {
             return;
         }
         notificationManager.notify(notificationId, builder.build());
+        //the notifications, after appearing, don't setup any further ones, so the user has to log on the app
+        //to get their next dose of notifications
     }
 }

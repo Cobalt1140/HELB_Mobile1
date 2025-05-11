@@ -1,18 +1,25 @@
 package com.example.helb_mobile1.main;
 
-
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+
 
 import com.example.helb_mobile1.R;
 import com.example.helb_mobile1.main.account.AccountFragment;
@@ -61,11 +68,23 @@ public class MainActivity extends AppCompatActivity {
 
         //notifications for Results time and New Word time
         AppNotificationManager notificationManager = new AppNotificationManager(this);
-        notificationManager.scheduleReminder(AppNotificationManager.NOTIF_TYPE_DAILY_RESULTS,
-                TimeConfig.PUBLISH_TIME_HOUR, AppNotificationManager.REQUEST_CODE_RESULTS);
-        notificationManager.scheduleReminder(AppNotificationManager.NOTIF_TYPE_DAILY_WORD,
-                TimeConfig.NEW_WORD_TIME_HOUR, AppNotificationManager.REQUEST_CODE_WORD);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) { //Android API >=33, explicit permission required
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                    != PackageManager.PERMISSION_GRANTED) {
+                final ActivityResultLauncher<String> notificationPermissionLauncher =
+                        registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                            if (isGranted) {
+                                scheduleReminder(notificationManager);
+                            } else {
+                                Toast.makeText(this,"Notification Permissions denied", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
+            }
+        } else { //Android API < 33, no permissions required
+            scheduleReminder(notificationManager);
 
+        }
 
         if (savedInstanceState == null) {
             // First-time creation of fragments
@@ -192,6 +211,13 @@ public class MainActivity extends AppCompatActivity {
         outState.putString(ACTIVE_TAG, activeFragment.getTag());
     }
 
+    private void scheduleReminder(AppNotificationManager notificationManager){
+        notificationManager.scheduleReminder(AppNotificationManager.NOTIF_TYPE_DAILY_RESULTS,
+                TimeConfig.PUBLISH_TIME_HOUR, AppNotificationManager.REQUEST_CODE_RESULTS);
+        notificationManager.scheduleReminder(AppNotificationManager.NOTIF_TYPE_DAILY_WORD,
+                TimeConfig.NEW_WORD_TIME_HOUR, AppNotificationManager.REQUEST_CODE_WORD);
+
+    }
 
 
     private void loadFragment(Fragment fragment) {

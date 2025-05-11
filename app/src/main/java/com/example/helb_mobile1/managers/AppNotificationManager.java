@@ -6,6 +6,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.util.Log;
 
 import java.time.ZoneId;
@@ -71,12 +72,25 @@ public class AppNotificationManager {
         Log.d("AppNotificationManager", "Scheduling " + type + " notification at " + target.toString());
 
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        alarmManager.setRepeating(
-                AlarmManager.RTC_WAKEUP,
-                target.toInstant().toEpochMilli(),
-                AlarmManager.INTERVAL_DAY,
-                pendingIntent
-        );
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) { //need to handle permission for exact alarms (only for API 31+)
+            if (alarmManager.canScheduleExactAlarms()) {
+                alarmManager.setExactAndAllowWhileIdle(
+                        AlarmManager.RTC_WAKEUP,
+                        target.toInstant().toEpochMilli(),
+                        pendingIntent
+                );
+            } else {
+                Log.d("AppNotificationManager", "permission denied");
+            }
+        }else { //API 30
+            alarmManager.setExactAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP,
+                    target.toInstant().toEpochMilli(),
+                    pendingIntent
+            );
+        }
+
     }
 
 }
