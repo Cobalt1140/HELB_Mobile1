@@ -1,0 +1,21 @@
+{
+  "rules": {
+      "userProfiles": {
+        ".read": "auth != null",
+      "$uid": {
+        ".write": "auth.uid === $uid"  
+      }
+    },
+    "dailyWord": {
+      ".read": "auth != null",  
+      ".write": false,          
+
+      "markerList": {
+        ".read": "auth != null",
+        "$uid": {
+          ".write": "auth.uid === $uid"   
+        }
+      }
+    }
+  }
+}

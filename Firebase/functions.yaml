@@ -1,0 +1,30 @@
+functions:
+  - name: daily_word_scheduler
+    type: scheduled
+    entryPoint: daily_word_scheduler
+    region: europe-west1
+    runtime: python312
+    scheduleTrigger:
+      schedule: "every day 18:00"
+      timeZone: "Europe/Paris"
+
+  - name: test_daily_word_scheduler
+    type: http
+    region: europe-west1
+    entryPoint: test_daily_word_scheduler
+    runtime: python312
+
+  - name: award_points_for_closeness
+    type: scheduled
+    entryPoint: award_points_for_closeness
+    region: europe-west1
+    runtime: python312
+    scheduleTrigger:
+      schedule: "every day 18:00"
+      timeZone: "Europe/Paris"
+
+  - name: test_award_points_for_closeness
+    type: http
+    region: europe-west1
+    entryPoint: test_award_points_for_closeness
+    runtime: python312

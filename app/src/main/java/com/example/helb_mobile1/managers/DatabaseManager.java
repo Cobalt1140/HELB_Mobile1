@@ -131,6 +131,7 @@ public class DatabaseManager {
                 }
 
 
+
                 fetchAndHandleUsernameWithUid(uid, new IUsernameCallback() {
                     //fetches the username of the user with the given uid so as to make sure no errors happen with cached usernames
                     @Override
