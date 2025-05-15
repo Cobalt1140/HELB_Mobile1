@@ -1,5 +1,9 @@
 package com.example.helb_mobile1.managers;
 
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
 import com.example.helb_mobile1.managers.db_callbacks.ICurrentTimeCallback;
@@ -122,8 +126,12 @@ public class DatabaseManager {
             }
 
             @Override
-            public void onWithinTimeWindow() {
+            public void onWithinTimeWindow(int time) {
                 //Boundary check to see if user is close to the center boundary point (Plaine Campus)
+
+                Log.d("DatabaseManager","Submit marker, à l'intérieur ("+TimeConfig.PUBLISH_TIME_HOUR+"h-"+
+                        TimeConfig.NEW_WORD_TIME_HOUR+" Current time: "+time+"h");
+
                 double distance = haversineDistance(lat, lng, CENTER_POINT_BOUNDARY_LAT, CENTER_POINT_BOUNDARY_LNG);
                 if (distance > BOUNDARY_MAX_DISTANCE) {
                     callback.onError("You are outside the allowed submission area, please go closer to the Plaine Campus.\nDistance from center of campus: " + (int) distance + "m");
@@ -233,6 +241,7 @@ public class DatabaseManager {
                     }
                 });
     }
+
     public void fetchAndHandleDailyWord(IDailyWordCallback callback){
         /*
         fetches the Daily Word from the database
@@ -303,7 +312,9 @@ public class DatabaseManager {
             }
 
             @Override
-            public void onWithinTimeWindow() {
+            public void onWithinTimeWindow(int time) {
+                Log.d("DatabaseManager","MarkerList, A l'intérieur de plage horaire ("+TimeConfig.PUBLISH_TIME_HOUR+"h-"+
+                        TimeConfig.NEW_WORD_TIME_HOUR+"h) current time: "+time+"h");
                 DatabaseReference markersRef = db.getReference(DB_DAILY_WORD).child(DB_MARKER_LIST);
                 markersRef.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -339,6 +350,8 @@ public class DatabaseManager {
             public void onOutsideTimeWindow(int time) {
                 callback.onError("En dehors de la fenêtre horaire ("+TimeConfig.PUBLISH_TIME_HOUR+"h-"+
                         TimeConfig.NEW_WORD_TIME_HOUR+"h)\nHeure actuelle: "+time+"h");
+                Log.d("DatabaseManager","MarkerList, En dehors de la fenêtre horaire ("+TimeConfig.PUBLISH_TIME_HOUR+"h-"+
+                        TimeConfig.NEW_WORD_TIME_HOUR+" Current time: "+time+"h");
             }
         });
 
@@ -385,49 +398,52 @@ public class DatabaseManager {
 
     private void handleIfWithinTimeWindow(int startHour, int endHour, ICurrentTimeCallback callback) {
         /*
-        gets the database's internal timestamp and compares it to the user's current Time
+        gets the difference between the system's clock and the server's clock
+        compares this value to startHour and endHour to see if user is within time window
         gives different callbacks to handle if the user is or isn't in the time window
         this method assures the user cannot trick the app by changing their system clock
          */
-        DatabaseReference serverTimeRef = db.getReference("serverTime");
 
-        serverTimeRef.setValue(ServerValue.TIMESTAMP);
-        //gets the value from the server, which also sets it to a more recent one as it triggers an update in the database
-        serverTimeRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                //takes a snapshot of the database from the DatabaseReference when fetched to get data from
-                Long utcMillis = snapshot.getValue(Long.class);
-                if (utcMillis == null) {
-                    callback.onTimeCheckFailed("Server time fetch failed");
-                    return;
+        db.goOffline();
+        db.goOnline();
+        DatabaseReference offsetRef = db.getReference(".info/serverTimeOffset");
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            offsetRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    //takes a snapshot of the database from the DatabaseReference when fetched to get data from
+                    Long offset = snapshot.getValue(Long.class);
+                    Log.d("DatabaseManager", "Offset: " + offset);
+                    if (offset == null) {
+                        callback.onTimeCheckFailed("Server time fetch failed");
+                        return;
+                    }
+                    long estimatedServerTimeMs = System.currentTimeMillis() + offset;
+                    Log.d("DatabaseManager", "EstimatedServerTime: " + estimatedServerTimeMs);
+                    ZonedDateTime belgianTime = Instant.ofEpochMilli(estimatedServerTimeMs)
+                            .atZone(ZoneId.of(TimeConfig.SERVER_TIMEZONE));
+                    int currentHour = belgianTime.getHour();
+
+                    boolean inWindow;
+                    if (startHour < endHour) { //handles if start hour is higher than end hour, so that Day Change is accounted for
+                        inWindow = currentHour >= startHour && currentHour < endHour;
+                    } else {
+                        inWindow = currentHour >= startHour || currentHour < endHour;
+                    }
+
+                    if (inWindow) {
+                        callback.onWithinTimeWindow(currentHour);
+                    } else {
+                        callback.onOutsideTimeWindow(currentHour);
+                    }
                 }
 
-                ZonedDateTime belgianTime = Instant.ofEpochMilli(utcMillis)
-                        .atZone(ZoneId.of(TimeConfig.SERVER_TIMEZONE));
-                //gets the user's current time (assuming they're in Belgium)
-
-                int currentHour = belgianTime.getHour();
-
-                boolean inWindow;
-                if (startHour < endHour) { //handles if start hour is higher than end hour, so that Day Change is accounted for
-                    inWindow = currentHour >= startHour && currentHour < endHour;
-                } else {
-                    inWindow = currentHour >= startHour || currentHour < endHour;
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    callback.onTimeCheckFailed(error.getMessage());
                 }
-
-                if (inWindow) {
-                    callback.onWithinTimeWindow();
-                } else {
-                    callback.onOutsideTimeWindow(currentHour);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                callback.onTimeCheckFailed(error.getMessage());
-            }
-        });
+            });
+        }, 500);
     }
 
 

@@ -152,50 +152,53 @@ public class MapViewModel extends ViewModel {
         /*
         sets markers in LiveData from a fetch in DB
          */
-        String uid = AuthManager.getInstance().getCurrentUid();
-        DatabaseManager.getInstance().fetchAndHandleMarkerList(uid, new IMarkerListCallback() {
-            @Override
-            public void onMarkersFetched(Map<String, Map<String, Object>> allMarkers) {
-                List<MarkerOptions> markerList = new ArrayList<>();
-                for (Map.Entry<String, Map<String, Object>> entry : allMarkers.entrySet()) {
-                    String uid = entry.getKey();
-                    Map<String, Object> data = entry.getValue();
+        if (markers.getValue().isEmpty()){
+            String uid = AuthManager.getInstance().getCurrentUid();
+            DatabaseManager.getInstance().fetchAndHandleMarkerList(uid, new IMarkerListCallback() {
+                @Override
+                public void onMarkersFetched(Map<String, Map<String, Object>> allMarkers) {
+                    List<MarkerOptions> markerList = new ArrayList<>();
+                    for (Map.Entry<String, Map<String, Object>> entry : allMarkers.entrySet()) {
+                        String uid = entry.getKey();
+                        Map<String, Object> data = entry.getValue();
 
-                    double lat = (Double) data.get(DatabaseManager.DB_MARKER_LAT);
-                    double lng = (Double) data.get(DatabaseManager.DB_MARKER_LNG);
-                    String username =(String) data.get(DatabaseManager.DB_USERNAME);
+                        double lat = (Double) data.get(DatabaseManager.DB_MARKER_LAT);
+                        double lng = (Double) data.get(DatabaseManager.DB_MARKER_LNG);
+                        String username =(String) data.get(DatabaseManager.DB_USERNAME);
 
-                    MarkerOptions markerOptions = new MarkerOptions()
-                            .position(new LatLng(lat, lng))
-                            .title("User: " + username)
-                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+                        MarkerOptions markerOptions = new MarkerOptions()
+                                .position(new LatLng(lat, lng))
+                                .title("User: " + username)
+                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
 
-                    markerList.add(markerOptions);
+                        markerList.add(markerOptions);
+
+                    }
+                    markers.setValue(markerList);
 
                 }
-                markers.setValue(markerList);
 
-            }
+                @Override
+                public void onUserMarkerFound(String uid, Map<String, Object> markerData) {
+                    //this method is always triggered before onMarkersFetched (if user submitted a marker),
+                    // as the DB uses this callback first
+                    double lat = (Double) markerData.get(DatabaseManager.DB_MARKER_LAT);
+                    double lng = (Double) markerData.get(DatabaseManager.DB_MARKER_LNG);
+                    MarkerOptions markerOptions = new MarkerOptions()
+                            .position(new LatLng(lat, lng))
+                            .title("Mon Marqueur")
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+                    personalMarker.setValue(markerOptions);
 
-            @Override
-            public void onUserMarkerFound(String uid, Map<String, Object> markerData) {
-                //this method is always triggered before onMarkersFetched (if user submitted a marker),
-                // as the DB uses this callback first
-                double lat = (Double) markerData.get(DatabaseManager.DB_MARKER_LAT);
-                double lng = (Double) markerData.get(DatabaseManager.DB_MARKER_LNG);
-                MarkerOptions markerOptions = new MarkerOptions()
-                        .position(new LatLng(lat, lng))
-                        .title("Mon Marqueur")
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
-                personalMarker.setValue(markerOptions);
+                }
 
-            }
+                @Override
+                public void onError(String error) {
+                    Log.d("MapViewModel", error);
+                }
+            });
+        }
 
-            @Override
-            public void onError(String error) {
-                Log.d("MapViewModel", error);
-            }
-        });
 
     }
 
