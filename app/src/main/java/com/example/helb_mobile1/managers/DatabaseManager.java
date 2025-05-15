@@ -404,10 +404,10 @@ public class DatabaseManager {
         this method assures the user cannot trick the app by changing their system clock
          */
 
-        db.goOffline();
+        db.goOffline(); //we reconnect to the database to get a fresh time offset
         db.goOnline();
         DatabaseReference offsetRef = db.getReference(".info/serverTimeOffset");
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+        new Handler(Looper.getMainLooper()).postDelayed(() -> { //as the reconnection is asynchronous, give a delay before executing rest of code
             offsetRef.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {

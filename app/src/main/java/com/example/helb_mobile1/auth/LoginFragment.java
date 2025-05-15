@@ -68,7 +68,6 @@ public class LoginFragment extends Fragment {
         });
 
         signupRedirectButton.setOnClickListener(v -> {
-            // Switch to SignupFragment
             if (getActivity() instanceof AuthActivity) {
                 AuthActivity authActivity = (AuthActivity) getActivity();
                 authActivity.loadFragment(new RegisterFragment());

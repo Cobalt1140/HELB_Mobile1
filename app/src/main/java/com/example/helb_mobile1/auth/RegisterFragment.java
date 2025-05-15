@@ -87,27 +87,7 @@ public class RegisterFragment extends Fragment {
     }
 
     private void observeViewModel() {
-        authViewModel.getIsLoading().observe(getViewLifecycleOwner(), isLoading -> {
-            if (isLoading) { //TODO add loading spinner animation
-
-            } else {
-
-            }
-        });
-
-        authViewModel.getAuthError().observe(getViewLifecycleOwner(), error -> {
-            if (error != null) {
-
-                Toast.makeText(getContext(), "Signup Failed: " + error, Toast.LENGTH_SHORT).show();
-
-
-            }
-        });
-
         authViewModel.getIsLoggedIn().observe(getViewLifecycleOwner(), isLoggedIn -> {
-            /*
-            Redirects to MainActivity when ViewModel says the User is logged in
-             */
             if (isLoggedIn){
                 DatabaseManager.getInstance().fetchAndHandleAccountData(AuthManager.getInstance().getCurrentUid(), new IUserDataCallback() {
                     @Override
@@ -130,5 +110,23 @@ public class RegisterFragment extends Fragment {
                 });
             }
         });
+        authViewModel.getIsLoading().observe(getViewLifecycleOwner(), isLoading -> {
+            if (isLoading) { //TODO add loading spinner animation
+
+            } else {
+
+            }
+        });
+
+        authViewModel.getAuthError().observe(getViewLifecycleOwner(), error -> {
+            if (error != null) {
+
+                Toast.makeText(getContext(), "Signup Failed: " + error, Toast.LENGTH_SHORT).show();
+
+
+            }
+        });
+
+
     }
 }
