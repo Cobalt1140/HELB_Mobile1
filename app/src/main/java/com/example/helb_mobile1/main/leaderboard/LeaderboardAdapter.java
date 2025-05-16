@@ -32,7 +32,7 @@ public class LeaderboardAdapter extends RecyclerView.Adapter<LeaderboardAdapter.
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         /*
-        handles what happens when the ViewHolder is created
+        handles what happens when a ViewHolder is created
          */
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_leaderboard, parent, false);
@@ -58,7 +58,7 @@ public class LeaderboardAdapter extends RecyclerView.Adapter<LeaderboardAdapter.
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         /*
-        class for the leaderboard display itself, has it's own views to display info with
+        class that holds the views for each item in the leaderboard, it's own views to display info with
          */
         TextView rankText, usernameText, scoreText;
 

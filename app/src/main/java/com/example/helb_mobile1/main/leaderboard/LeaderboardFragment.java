@@ -4,21 +4,19 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.helb_mobile1.R;
+import com.example.helb_mobile1.main.AppViewModelFactory;
 import com.example.helb_mobile1.main.IOnFragmentVisibleListener;
-import com.example.helb_mobile1.managers.DatabaseManager;
-import com.example.helb_mobile1.managers.db_callbacks.ILeaderboardCallback;
-import com.example.helb_mobile1.models.UserScore;
+
 import com.google.android.material.tabs.TabLayout;
 
-import java.util.ArrayList;
-import java.util.List;
+
 
 public class LeaderboardFragment extends Fragment implements IOnFragmentVisibleListener {
     /*
@@ -28,8 +26,7 @@ public class LeaderboardFragment extends Fragment implements IOnFragmentVisibleL
     private LeaderboardAdapter adapter;
     private TabLayout tabLayout;
 
-    private List<UserScore> globalList = new ArrayList<>();
-    private List<UserScore> dailyList = new ArrayList<>();
+    private LeaderboardViewModel leaderboardViewModel;
 
     private static final String GLOBAL = "Global";
     private static final String DAILY = "Quotidien";
@@ -50,8 +47,17 @@ public class LeaderboardFragment extends Fragment implements IOnFragmentVisibleL
         adapter = new LeaderboardAdapter(); //adapts the recycler View according to data given
         recyclerLeaderboard.setAdapter(adapter);
 
+
+        AppViewModelFactory factory = new AppViewModelFactory(requireContext());
+        leaderboardViewModel = new ViewModelProvider(this, factory).get(LeaderboardViewModel.class);
+
+        leaderboardViewModel.setEmptyGlobalList();
+        leaderboardViewModel.setEmptyDailyList();
+        leaderboardViewModel.fetchLeaderboards();
         setupTabs();
-        fetchLeaderboards();
+        observeViewModel();
+
+
 
         return view;
     }
@@ -59,53 +65,34 @@ public class LeaderboardFragment extends Fragment implements IOnFragmentVisibleL
     private void setupTabs() {
         /*
         adds both daily and global tabs, to sort users by daily or global points
-        adds listener for the tab selection
+        adds listener for the tab selection so that adapter knows what data it should display
          */
         tabLayout.addTab(tabLayout.newTab().setText(GLOBAL));
         tabLayout.addTab(tabLayout.newTab().setText(DAILY));
 
+
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override public void onTabSelected(TabLayout.Tab tab) {
                 if (tab.getPosition() == 0) {
-                    adapter.updateList(globalList);
+                    adapter.updateList(leaderboardViewModel.getGlobalList().getValue());
                 } else {
-                    adapter.updateList(dailyList);
+                    adapter.updateList(leaderboardViewModel.getDailyList().getValue());
                 }
             }
             @Override public void onTabUnselected(TabLayout.Tab tab) {}
             @Override public void onTabReselected(TabLayout.Tab tab) {}
         });
-    }
 
-    private void fetchLeaderboards() {
-        /*
-        fetches user Data from DB for both the Daily Points ordered List and Global Points ordered List
-         */
-        DatabaseManager.getInstance().fetchAndHandleLeaderboard(false,new ILeaderboardCallback() {
-            @Override
-            public void onSuccess(List<UserScore> scores) {
-                globalList = scores;
-                if (tabLayout.getSelectedTabPosition() == 0) {
-                    adapter.updateList(globalList);
-                }
-            }
-            @Override
-            public void onError(String error) {
-                Toast.makeText(getContext(), "Global leaderboard error: " + error, Toast.LENGTH_SHORT).show();
+    }
+    private void observeViewModel(){
+        leaderboardViewModel.getDailyList().observe(getViewLifecycleOwner(), dailyList -> {
+            if (tabLayout.getSelectedTabPosition() == 1) {
+                adapter.updateList(dailyList);
             }
         });
-
-        DatabaseManager.getInstance().fetchAndHandleLeaderboard(true,new ILeaderboardCallback() {
-            @Override
-            public void onSuccess(List<UserScore> scores) {
-                dailyList = scores;
-                if (tabLayout.getSelectedTabPosition() == 1) {
-                    adapter.updateList(dailyList);
-                }
-            }
-            @Override
-            public void onError(String error) {
-                Toast.makeText(getContext(), "Daily leaderboard error: " + error, Toast.LENGTH_SHORT).show();
+        leaderboardViewModel.getGlobalList().observe(getViewLifecycleOwner(), globalList -> {
+            if (tabLayout.getSelectedTabPosition() == 0) {
+                adapter.updateList(globalList);
             }
         });
     }

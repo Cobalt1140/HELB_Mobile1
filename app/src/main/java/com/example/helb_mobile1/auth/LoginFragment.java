@@ -92,31 +92,12 @@ public class LoginFragment extends Fragment {
 
 
     private void observeViewModel() {
-        /*
-        Deals with data from AuthViewModel
-         */
-        authViewModel.getIsLoading().observe(getViewLifecycleOwner(), isLoading -> {
-            if (isLoading) { //TODO add loading spinner animation
-
-
-            }
-        });
-
-        authViewModel.getAuthError().observe(getViewLifecycleOwner(), error -> {
-            if (error != null) {
-
-                Toast.makeText(getContext(), "Login Failed: " + error, Toast.LENGTH_SHORT).show();
-
-
-            }
-        });
-
         authViewModel.getIsLoggedIn().observe(getViewLifecycleOwner(), isLoggedIn -> {
             /*
             Redirects to MainActivity when ViewModel says the User is logged in
              */
             if (isLoggedIn){
-               DatabaseManager.getInstance().fetchAndHandleAccountData(AuthManager.getInstance().getCurrentUid(), new IUserDataCallback() {
+                DatabaseManager.getInstance().fetchAndHandleAccountData(AuthManager.getInstance().getCurrentUid(), new IUserDataCallback() {
                     @Override
                     public void onUserDataReceived(String username, long points) {
                         PreferencesManager prefs = PreferencesManager.getInstance(requireContext());
@@ -138,5 +119,25 @@ public class LoginFragment extends Fragment {
 
             }
         });
+        /*
+        Deals with data from AuthViewModel
+         */
+        authViewModel.getIsLoading().observe(getViewLifecycleOwner(), isLoading -> {
+            if (isLoading) { //TODO add loading spinner animation
+
+
+            }
+        });
+
+        authViewModel.getAuthError().observe(getViewLifecycleOwner(), error -> {
+            if (error != null) {
+
+                Toast.makeText(getContext(), "Login Failed: " + error, Toast.LENGTH_SHORT).show();
+
+
+            }
+        });
+
+
     }
 }

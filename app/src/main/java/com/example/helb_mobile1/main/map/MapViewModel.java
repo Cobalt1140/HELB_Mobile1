@@ -36,7 +36,7 @@ public class MapViewModel extends ViewModel {
 
     private final MutableLiveData<Boolean> isCameraVisible = new MutableLiveData<>();
     private final MutableLiveData<MarkerOptions> personalMarker = new MutableLiveData<>();
-    private final MutableLiveData<List<MarkerOptions>> markers = new MutableLiveData<>(new ArrayList<>());
+    private final MutableLiveData<List<MarkerOptions>> markerList = new MutableLiveData<>(new ArrayList<>());
     private final MutableLiveData<String> notifLiveData = new MutableLiveData<>();
     private final PreferencesManager prefs;
 
@@ -44,6 +44,19 @@ public class MapViewModel extends ViewModel {
         this.prefs = PreferencesManager.getInstance(context.getApplicationContext());
         checkTimeAndHandleResults();
     }
+
+
+
+    public LiveData<String> getNotifLiveData (){
+        return notifLiveData;
+    }
+    public LiveData<List<MarkerOptions>> getMarkersLiveData() {
+        return markerList;
+    }
+    public LiveData<MarkerOptions> getPersonalMarkerLiveData(){
+        return personalMarker;
+    }
+    public LiveData<Boolean> getIsCameraVisible(){return isCameraVisible;}
 
     public void checkTimeAndHandleResults() {
         /*
@@ -65,17 +78,6 @@ public class MapViewModel extends ViewModel {
             isCameraVisible.setValue(true);
         }
     }
-
-    public LiveData<String> getNotifLiveData (){
-        return notifLiveData;
-    }
-    public LiveData<List<MarkerOptions>> getMarkersLiveData() {
-        return markers;
-    }
-    public LiveData<MarkerOptions> getPersonalMarkerLiveData(){
-        return personalMarker;
-    }
-    public LiveData<Boolean> getIsCameraVisible(){return isCameraVisible;}
 
     public void setPersonalMarker(double lat, double lng){
         //Used with camera result in MapFragment, submits marker with given parameters
@@ -152,7 +154,7 @@ public class MapViewModel extends ViewModel {
         /*
         sets markers in LiveData from a fetch in DB
          */
-        if (markers.getValue().isEmpty()){
+        if (markerList.getValue().isEmpty()){
             String uid = AuthManager.getInstance().getCurrentUid();
             DatabaseManager.getInstance().fetchAndHandleMarkerList(uid, new IMarkerListCallback() {
                 @Override
@@ -174,7 +176,7 @@ public class MapViewModel extends ViewModel {
                         markerList.add(markerOptions);
 
                     }
-                    markers.setValue(markerList);
+                    MapViewModel.this.markerList.setValue(markerList);
 
                 }
 

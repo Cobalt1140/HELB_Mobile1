@@ -19,7 +19,6 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 
 import java.time.*;
@@ -37,6 +36,7 @@ public class DatabaseManager {
     public static final String DB_USERNAME = "username";
     public static final String DB_MARKER_LAT = "lat";
     public static final String DB_MARKER_LNG = "lng";
+
     //Coordinates for the center of the Plaine Campus
     public static final double CENTER_POINT_BOUNDARY_LAT = 50.81973292056924;
     public static final double CENTER_POINT_BOUNDARY_LNG = 4.399286094121766;

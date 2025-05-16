@@ -7,12 +7,14 @@ import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.helb_mobile1.main.dailyWord.DailyWordViewModel;
+import com.example.helb_mobile1.main.leaderboard.LeaderboardViewModel;
 import com.example.helb_mobile1.main.map.MapViewModel;
 
 public class AppViewModelFactory implements ViewModelProvider.Factory {
     /*
     generic ViewModelFactory to give context to ViewModels when instanciated through this,
-    allows SharedPreferences use
+    allows SharedPreferences use and keeps the same ViewModel if fragment is reconstructed
+    https://vtsen.hashnode.dev/recommended-ways-to-create-viewmodel-or-androidviewmodel for more info on why ViewModelFactory is good
      */
 
     private final Context appContext;
@@ -29,6 +31,8 @@ public class AppViewModelFactory implements ViewModelProvider.Factory {
             return (T) new MapViewModel(appContext);
         } else if (modelClass == DailyWordViewModel.class) {
             return (T) new DailyWordViewModel(appContext);
+        } else if (modelClass == LeaderboardViewModel.class){
+            return (T) new LeaderboardViewModel(appContext);
         }
         //TODO rest of my ViewModels
         throw new IllegalArgumentException("Unknown ViewModel class: " + modelClass.getName());
