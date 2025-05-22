@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 public class PreferencesManager {
     /*
     manager for Shared Preferences
+    Class suggested by ChatGPT
      */
     private final String CACHED_WORD_NAME = "cachedWord";
     private final String CACHED_WORD_TIMESTAMP = "cachedWordTimestamp";
@@ -58,6 +59,7 @@ public class PreferencesManager {
     public double getCachedPersonalMarkerLat(){
         //Double isn't supported as a value type that can be stored in SharedPreferences,
         // however we can store it as a long as it is the same size, we just have to convert it
+        //Code suggested by ChatGPT
         return  Double.longBitsToDouble(sharedPreferences.getLong(CACHED_MARKER_LAT_NAME, Double.doubleToLongBits(0)));
     }
 
@@ -66,6 +68,7 @@ public class PreferencesManager {
     public double getCachedPersonalMarkerLng(){
         //Double isn't supported as a value type that can be stored in SharedPreferences,
         // however we can store it as a long as it is the same size, we just have to convert it
+        //Code Suggested by ChatGPT
         return Double.longBitsToDouble(sharedPreferences.getLong(CACHED_MARKER_LNG_NAME, Double.doubleToLongBits(0)));
     }
 

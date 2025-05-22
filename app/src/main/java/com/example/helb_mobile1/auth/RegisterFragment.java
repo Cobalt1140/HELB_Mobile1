@@ -73,6 +73,7 @@ public class RegisterFragment extends Fragment {
 
 
         visiblePasswordBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            //code from https://droidbyme.medium.com/show-hide-password-in-edittext-in-android-c4c3db44f734
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked){

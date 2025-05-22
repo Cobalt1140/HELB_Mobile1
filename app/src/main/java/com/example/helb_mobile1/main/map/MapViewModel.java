@@ -159,9 +159,9 @@ public class MapViewModel extends ViewModel {
             DatabaseManager.getInstance().fetchAndHandleMarkerList(uid, new IMarkerListCallback() {
                 @Override
                 public void onMarkersFetched(Map<String, Map<String, Object>> allMarkers) {
+                    //Code suggested by ChatGPT, modified
                     List<MarkerOptions> markerList = new ArrayList<>();
                     for (Map.Entry<String, Map<String, Object>> entry : allMarkers.entrySet()) {
-                        String uid = entry.getKey();
                         Map<String, Object> data = entry.getValue();
 
                         double lat = (Double) data.get(DatabaseManager.DB_MARKER_LAT);

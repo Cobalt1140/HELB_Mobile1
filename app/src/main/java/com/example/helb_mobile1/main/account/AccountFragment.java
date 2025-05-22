@@ -30,6 +30,7 @@ public class AccountFragment extends Fragment implements IOnFragmentVisibleListe
             "\n Par exemple, avec le mot 'arbre', vous pouvez bien prendre une photo de n'importe quel arbre du campus de la Plaine." +
             "\n Cependant, pensez à quel arbre serait le plus iconique du campus selon la majorité des gens." +
             "\n Un nouveau mot apparaît chaque jour à 8h et le temps de soumission se finit à 18h.";
+    //String put in code because putting it in xml values doesn't work
 
     private TextView usernameTxt;
     private TextView pointTxt;

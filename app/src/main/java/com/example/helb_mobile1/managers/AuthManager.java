@@ -9,6 +9,7 @@ import com.google.firebase.auth.FirebaseUser;
 public class AuthManager {
     /*
     manager for everything related directly to Firebase Authentication
+    https://firebase.google.com/docs/auth/android/start#java
      */
     private final FirebaseAuth mAuth;
     private static AuthManager instance; //singleton
