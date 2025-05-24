@@ -12,6 +12,9 @@ from firebase_functions import https_fn
 from pytz import timezone as pytz_timezone
 
 PARIS_TZ = pytz_timezone("Europe/Paris")
+NEW_WORD = 8
+RESULTS = 18
+POINT_DISTANCE = 12
 
 
 
@@ -33,7 +36,7 @@ def haversine(lat1, lon1, lat2, lon2):
 
 
 
-@scheduler_fn.on_schedule(schedule="every day 08:00", region="europe-west1")
+@scheduler_fn.on_schedule(schedule="every day 0"+str(NEW_WORD)+":00", region="europe-west1")
 def daily_word_scheduler(event: scheduler_fn.ScheduledEvent) -> None:
     return run_daily_word_logic()
 
@@ -66,7 +69,7 @@ def test_award_points_for_closeness(req: https_fn.Request) -> https_fn.Response:
     return https_fn.Response(f"Triggered Manually: {result}")
 
     
-@scheduler_fn.on_schedule(schedule="every day 18:00", region="europe-west1") 
+@scheduler_fn.on_schedule(schedule="every day"+str(RESULTS)+":00", region="europe-west1") 
 def award_points_for_closeness(event: scheduler_fn.ScheduledEvent) -> None:
     return run_award_points_logic()
 
@@ -103,7 +106,7 @@ def run_award_points_logic():
             if i == j:
                 continue
             dist = haversine(marker['lat'], marker['lng'], other['lat'], other['lng'])
-            if dist < 8:  # define how close in meters you have to be
+            if dist < POINT_DISTANCE:  # define how close in meters you have to be
                 nearby += 1
         uid = marker['uid']
         user_scores[uid] = nearby #I could add something to make it less unfair if less players play a given day

@@ -137,7 +137,7 @@ public class DatabaseManager {
 
                 double distance = haversineDistance(lat, lng, CENTER_POINT_BOUNDARY_LAT, CENTER_POINT_BOUNDARY_LNG);
                 if (distance > BOUNDARY_MAX_DISTANCE) {
-                    callback.onError("You are outside the allowed submission area, please go closer to the Plaine Campus.\nDistance from center of campus: " + (int) distance + "m");
+                    callback.onError("Vous êtes en dehors de la distance autorisée pour soumettre un marqueur\n Veuillez vous approchez du centre du campus de la Plaine.");
                     return;
                 }
 
@@ -166,7 +166,7 @@ public class DatabaseManager {
 
                     @Override
                     public void onError(String error) {
-                        callback.onError("Failed to get username: " + error);
+                        callback.onError("Erreur pour récupérer le nom d'utilisateur: " + error);
                     }
                 });
             }
@@ -297,7 +297,7 @@ public class DatabaseManager {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                callback.onError("Couldn't access database correctly: "+error.getMessage());
+                callback.onError("Erreur connexion à la DB: "+error.getMessage());
             }
         });
     }
@@ -312,7 +312,7 @@ public class DatabaseManager {
             //gives callbacks to handle if attempting to fetch Marker List when it's not Results Time
             @Override
             public void onTimeCheckFailed(String message) {
-                callback.onError("Couldn't verify current server time: "+message);
+                callback.onError("Erreur vérification du temps: "+message);
             }
 
             @Override
@@ -346,7 +346,7 @@ public class DatabaseManager {
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {
-                        callback.onError("Couldn't access database correctly: "+error.getMessage());
+                        callback.onError("Erreur connexion DB: "+error.getMessage());
                     }
                 });
             }
@@ -391,13 +391,13 @@ public class DatabaseManager {
                 if (username != null) {
                     callback.onSuccess(username);
                 } else {
-                    callback.onError("Username not found for UID: " + uid);
+                    callback.onError("Nom d'utilisateur pas trouvé avec UID: " + uid);
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                callback.onError("Couldn't access database correctly: "+error.getMessage());
+                callback.onError("Erreur connexion DB: "+error.getMessage());
             }
         });
     }
@@ -422,7 +422,7 @@ public class DatabaseManager {
                     Long offset = snapshot.getValue(Long.class);
                     Log.d("DatabaseManager", "Offset: " + offset);
                     if (offset == null) {
-                        callback.onTimeCheckFailed("Server time fetch failed");
+                        callback.onTimeCheckFailed("Erreur");
                         return;
                     }
                     long estimatedServerTimeMs = System.currentTimeMillis() + offset;

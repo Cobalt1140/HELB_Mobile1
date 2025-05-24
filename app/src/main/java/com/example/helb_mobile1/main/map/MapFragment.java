@@ -90,7 +90,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, IOnFrag
 
                                             double lat = location.getLatitude();
                                             double lng = location.getLongitude();
-                                            Toast.makeText(requireActivity(), "Lat:"+lat+" Lng:"+lng,Toast.LENGTH_SHORT).show();
+                                            //Toast.makeText(requireActivity(), "Lat:"+lat+" Lng:"+lng,Toast.LENGTH_SHORT).show();
                                             myMap.clear();
                                             mapViewModel.setPersonalMarker(lat,lng);
                                         }

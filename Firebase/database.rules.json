@@ -1,9 +1,9 @@
 {
   "rules": {
       "userProfiles": {
-        ".read": "auth != null",
+        ".read": true,
       "$uid": {
-        ".write": "auth.uid === $uid"  
+        ".write": "auth.uid === $uid && !data.exists()"  
       }
     },
     "dailyWord": {
